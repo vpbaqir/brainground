@@ -71,3 +71,5 @@ jobs:
         with:
           name: brain-playground-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+# Rebuild latest Brain Playground source for device verification.
