@@ -65,7 +65,7 @@ const $=s=>document.querySelector(s),K='brainplay1';
 const BP_SUPABASE={url:'YOUR_SUPABASE_URL',anon:'YOUR_SUPABASE_ANON_KEY'};
 let cloud=null,remote={announcement:'',games:{}},adminUser=null,cloudTimer=null;
 function cloudReady(){return BP_SUPABASE.url.startsWith('https://')&&BP_SUPABASE.anon&&BP_SUPABASE.anon!=='YOUR_SUPABASE_ANON_KEY'&&window.supabase}
-async function cloudInit(){if(!cloudReady())return;try{cloud=supabase.createClient(BP_SUPABASE.url,BP_SUPABASE.anon);await loadRemote();cloud.auth.onAuthStateChange((_e,s)=>{adminUser=s?.user||null;if(view==='admin')render()});cloudTimer=setInterval(loadRemote,10000)}catch(e){console.warn(e)}}
+async function cloudInit(){if(!cloudReady())return;try{cloud=supabase.createClient(BP_SUPABASE.url,BP_SUPABASE.anon);await loadRemote();cloud.auth.onAuthStateChange((_e,s)=>{adminUser=s?.user||null;if(view==='admin')render()});cloudTimer=setInterval(loadRemote,10000);try{cloud.channel('app_config_changes').on('postgres_changes',{event:'*',schema:'public',table:'app_config',filter:'id=eq.main'},p=>{if(p.new?.data){remote=Object.assign({announcement:'',games:{}},p.new.data||{});if(view==='home')render()}}).subscribe()}catch(e){}}catch(e){console.warn(e)}}
 async function loadRemote(){if(!cloud)return;try{const {data,error}=await cloud.from('app_config').select('data').eq('id','main').maybeSingle();if(!error&&data)remote=Object.assign({announcement:'',games:{}},data.data||{});if(view==='home')render()}catch(e){}}
 function gameName(id){return remote.games?.[id]?.name||G[id]?.n}
 function gameDesc(id){return remote.games?.[id]?.desc||G[id]?.d}
