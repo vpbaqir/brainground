@@ -23,6 +23,11 @@ jobs:
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -35,9 +40,9 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import os
           p=Path("app/src/main/assets/index.html")
           s=p.read_text()
-          import os
           s=s.replace("YOUR_SUPABASE_URL", os.environ.get("SUPABASE_URL",""))
           s=s.replace("YOUR_SUPABASE_ANON_KEY", os.environ.get("SUPABASE_ANON_KEY",""))
           p.write_text(s)
@@ -63,6 +68,19 @@ jobs:
           p.write_text(s)
           PY
 
+      - name: Validate JavaScript syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path("app/src/main/assets/index.html").read_text()
+          scripts=re.findall(r'<script(?:\\s[^>]*)?>(.*?)</script>',s,re.S)
+          if not scripts:
+              raise SystemExit("No inline JavaScript found")
+          Path("/tmp/brain-playground.js").write_text("\n".join(scripts))
+          PY
+          node --check /tmp/brain-playground.js
+
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
 
@@ -71,5 +89,3 @@ jobs:
         with:
           name: brain-playground-apk
           path: app/build/outputs/apk/debug/app-debug.apk
-
-# Rebuild latest Brain Playground source for device verification.
