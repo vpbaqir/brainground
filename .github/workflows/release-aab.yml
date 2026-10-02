@@ -35,9 +35,9 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import os
           p=Path("app/src/main/assets/index.html")
           s=p.read_text()
-          import os
           s=s.replace("YOUR_SUPABASE_URL", os.environ.get("SUPABASE_URL",""))
           s=s.replace("YOUR_SUPABASE_ANON_KEY", os.environ.get("SUPABASE_ANON_KEY",""))
           p.write_text(s)
@@ -63,18 +63,48 @@ jobs:
           p.write_text(s)
           PY
 
+      - name: Configure release signing
+        env:
+          KEYSTORE_B64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_B64" || (echo "Missing SIGNING_KEYSTORE_BASE64" && exit 1)
+          test -n "$STORE_PASSWORD" || (echo "Missing SIGNING_STORE_PASSWORD" && exit 1)
+          test -n "$KEY_ALIAS" || (echo "Missing SIGNING_KEY_ALIAS" && exit 1)
+          test -n "$KEY_PASSWORD" || (echo "Missing SIGNING_KEY_PASSWORD" && exit 1)
+          echo "$KEYSTORE_B64" | base64 --decode > release.keystore
+          cat > signing.properties <<EOF
+          storeFile=../release.keystore
+          storePassword=$STORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+
       - name: Build release AAB
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p = Path("app/build.gradle")
-          s = p.read_text()
+          p=Path("app/build.gradle")
+          s=p.read_text()
           s += '''
           
+          def signingProps = new Properties()
+          file("signing.properties").withInputStream { signingProps.load(it) }
+          
           android {
+              signingConfigs {
+                  release {
+                      storeFile file(signingProps["storeFile"])
+                      storePassword signingProps["storePassword"]
+                      keyAlias signingProps["keyAlias"]
+                      keyPassword signingProps["keyPassword"]
+                  }
+              }
               buildTypes {
                   release {
-                      signingConfig signingConfigs.debug
+                      signingConfig signingConfigs.release
                       minifyEnabled false
                   }
               }
@@ -90,3 +120,7 @@ jobs:
           name: brain-playground-aab
           path: app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
+
+      - name: Cleanup signing material
+        if: always()
+        run: rm -f release.keystore signing.properties
