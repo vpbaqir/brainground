@@ -43,6 +43,26 @@ jobs:
           p.write_text(s)
           PY
 
+      - name: Configure AdMob
+        env:
+          ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
+          ADMOB_BANNER_ID: ${{ secrets.ADMOB_BANNER_ID }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          p=Path("app/src/main/AndroidManifest.xml")
+          s=p.read_text()
+          if os.environ.get("ADMOB_APP_ID"):
+              s=s.replace("ca-app-pub-3940256099942544~3347511713", os.environ["ADMOB_APP_ID"])
+          p.write_text(s)
+          p=Path("app/src/main/java/com/vpbaqir/brainplayground/MainActivity.java")
+          s=p.read_text()
+          if os.environ.get("ADMOB_BANNER_ID"):
+              s=s.replace("ca-app-pub-3940256099942544/9214589741", os.environ["ADMOB_BANNER_ID"])
+          p.write_text(s)
+          PY
+
       - name: Build release AAB
         run: |
           python3 - <<'PY'
