@@ -66,7 +66,7 @@ const BP_SUPABASE={url:'YOUR_SUPABASE_URL',anon:'YOUR_SUPABASE_ANON_KEY'};
 let cloud=null,remote={announcement:'',games:{},ads:{enabled:true,list:[]}},adminUser=null,cloudTimer=null,adConfig={enabled:false,unitId:'',testMode:true};
 function cloudReady(){return BP_SUPABASE.url.startsWith('https://')&&BP_SUPABASE.anon&&BP_SUPABASE.anon!=='YOUR_SUPABASE_ANON_KEY'&&window.supabase}
 async function cloudInit(){if(!cloudReady())return;try{cloud=supabase.createClient(BP_SUPABASE.url,BP_SUPABASE.anon);await loadRemote();cloud.auth.onAuthStateChange((_e,s)=>{adminUser=s?.user||null;if(view==='admin')render()});cloudTimer=setInterval(loadRemote,10000);try{cloud.channel('app_config_changes').on('postgres_changes',{event:'*',schema:'public',table:'app_config',filter:'id=eq.main'},p=>{if(p.new?.data){remote=Object.assign({announcement:'',games:{},ads:{enabled:true,list:[]}},p.new.data||{});adConfig=Object.assign(adConfig,remote.ads?.admob||{});if(view==='home'||view==='res'||view==='par')render()}}).subscribe()}catch(e){}}catch(e){console.warn(e)}}
-async function loadRemote(){if(!cloud)return;try{const {data,error}=await cloud.from('app_config').select('data').eq('id','main').maybeSingle();if(!error&&data){remote=Object.assign({announcement:'',games:{},ads:{enabled:true,list:[]}},data.data||{});adConfig=Object.assign(adConfig,remote.ads||{})}if(view==='home')render()}catch(e){}}
+async function loadRemote(){if(!cloud)return;try{const {data,error}=await cloud.from('app_config').select('data').eq('id','main').maybeSingle();if(!error&&data){remote=Object.assign({announcement:'',games:{},ads:{enabled:true,list:[]}},data.data||{});adConfig=Object.assign(adConfig,remote.ads?.admob||{});try{localStorage.setItem('brainplay_cloud',JSON.stringify(remote))}catch(e){}}if(view==='home')render()}catch(e){}}
 function gameName(id){return remote.games?.[id]?.name||G[id]?.n}
 function gameDesc(id){return remote.games?.[id]?.desc||G[id]?.d}
 function syncAd(){try{if(window.AndroidAd&&AndroidAd.setBannerVisible)AndroidAd.setBannerVisible(!!adConfig.enabled&&['home','game','res','rew'].includes(view))}catch(e){}}
@@ -230,5 +230,5 @@ $('#adminMsg').textContent=error?error.message:'Published successfully. Connecte
 if(!error){remote=data;try{localStorage.setItem('brainplay_cloud',JSON.stringify(remote))}catch(e){}render()}
 }catch(e){$('#adminMsg').textContent=e.message}
 }
-try{const c=JSON.parse(localStorage.getItem('brainplay_cloud')||'null');if(c)remote=Object.assign(remote,c)}catch(e){} render();cloudInit();
+try{const c=JSON.parse(localStorage.getItem('brainplay_cloud')||'null');if(c){remote=Object.assign(remote,c);adConfig=Object.assign(adConfig,remote.ads?.admob||{})}}catch(e){} render();cloudInit();
 </script></body></html>
