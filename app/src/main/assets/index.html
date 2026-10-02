@@ -64,9 +64,11 @@ svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-l
 const $=s=>document.querySelector(s),K='brainplay1';
 const BP_SUPABASE={url:'YOUR_SUPABASE_URL',anon:'YOUR_SUPABASE_ANON_KEY'};
 let cloud=null,remote={announcement:'',games:{},ads:{enabled:true,list:[]}},adminUser=null,cloudTimer=null,adConfig={enabled:false,unitId:'',testMode:true};
-function cloudReady(){return BP_SUPABASE.url.startsWith('https://')&&BP_SUPABASE.anon&&BP_SUPABASE.anon!=='YOUR_SUPABASE_ANON_KEY'&&window.supabase}
-async function cloudInit(){if(!cloudReady())return;try{cloud=supabase.createClient(BP_SUPABASE.url,BP_SUPABASE.anon);await loadRemote();cloud.auth.onAuthStateChange((_e,s)=>{adminUser=s?.user||null;if(view==='admin')render()});cloudTimer=setInterval(loadRemote,10000);try{cloud.channel('app_config_changes').on('postgres_changes',{event:'*',schema:'public',table:'app_config',filter:'id=eq.main'},p=>{if(p.new?.data){remote=Object.assign({announcement:'',games:{},ads:{enabled:true,list:[]}},p.new.data||{});adConfig=Object.assign(adConfig,remote.ads?.admob||{});if(view==='home'||view==='res'||view==='par')render()}}).subscribe()}catch(e){}}catch(e){console.warn(e)}}
-async function loadRemote(){if(!cloud)return;try{const {data,error}=await cloud.from('app_config').select('data').eq('id','main').maybeSingle();if(!error&&data){remote=Object.assign({announcement:'',games:{},ads:{enabled:true,list:[]}},data.data||{});adConfig=Object.assign(adConfig,remote.ads?.admob||{});try{localStorage.setItem('brainplay_cloud',JSON.stringify(remote))}catch(e){}}if(view==='home')render()}catch(e){}}
+function cloudReady(){return BP_SUPABASE.url.startsWith('https://')&&BP_SUPABASE.anon&&BP_SUPABASE.anon!=='YOUR_SUPABASE_ANON_KEY'}
+function restHeaders(token){return {'apikey':BP_SUPABASE.anon,'Authorization':'Bearer '+(token||BP_SUPABASE.anon),'Content-Type':'application/json'}}
+async function restGetConfig(){const r=await fetch(BP_SUPABASE.url+'/rest/v1/app_config?id=eq.main&select=data',{headers:restHeaders()});if(!r.ok)throw new Error('Cloud read failed ('+r.status+')');const a=await r.json();return a[0]?.data||null}
+async function cloudInit(){if(!cloudReady())return;try{if(window.supabase){cloud=supabase.createClient(BP_SUPABASE.url,BP_SUPABASE.anon);cloud.auth.onAuthStateChange((_e,s)=>{adminUser=s?.user||null;if(view==='admin')render()});try{cloud.channel('app_config_changes').on('postgres_changes',{event:'*',schema:'public',table:'app_config',filter:'id=eq.main'},p=>{if(p.new?.data){remote=Object.assign({announcement:'',games:{},ads:{enabled:true,list:[]}},p.new.data||{});adConfig=Object.assign(adConfig,remote.ads?.admob||{});try{localStorage.setItem('brainplay_cloud',JSON.stringify(remote))}catch(e){};if(view==='home'||view==='res'||view==='par')render()}}).subscribe()}catch(e){}}await loadRemote();cloudTimer=setInterval(loadRemote,10000)}catch(e){console.warn(e)}}
+async function loadRemote(){if(!cloudReady())return;try{let data=null;if(cloud){const q=await cloud.from('app_config').select('data').eq('id','main').maybeSingle();if(!q.error)data=q.data?.data}else data=await restGetConfig();if(data){remote=Object.assign({announcement:'',games:{},ads:{enabled:true,list:[]}},data);adConfig=Object.assign(adConfig,remote.ads?.admob||{});try{localStorage.setItem('brainplay_cloud',JSON.stringify(remote))}catch(e){}}if(view==='home')render()}catch(e){console.warn(e)}}
 function gameName(id){return remote.games?.[id]?.name||G[id]?.n}
 function gameDesc(id){return remote.games?.[id]?.desc||G[id]?.d}
 function syncAd(){try{if(window.AndroidAd&&AndroidAd.setBannerVisible)AndroidAd.setBannerVisible(!!adConfig.enabled&&['home','game','res','rew'].includes(view))}catch(e){}}
@@ -100,7 +102,7 @@ res(){return`<div class="card ${G[g.id].c}" style="margin-top:20px;text-align:ce
 rew(){return`<h1 class="disp">Rewards</h1><div class="stats"><div class="card lemon"><small>Stars</small><b>${S.stars}</b></div><div class="card peach"><small>Streak</small><b>${streak()}</b></div><div class="card mint"><small>Badges</small><b>${S.badges.length}</b></div></div><h3 class="ttl">Badges</h3>${B.map(b=>`<div class="bad ${S.badges.includes(b[0])?'':'lock'}"><i></i><div><b>${b[0]}</b><p class="sm">${b[1]}</p></div></div>`).join('')}`},
 
 admin(){
-if(!cloudReady())return '<h1 class="disp">Cloud Admin</h1><p class="sm" style="margin-top:8px">Cloud configuration is missing.</p><button class="btn lt" style="margin-top:18px" onclick="go(\'par\')">Back</button>';
+if(!cloudReady())return '<h1 class="disp">Cloud Admin</h1><p class="sm" style="margin-top:8px">Cloud configuration is missing. Check the app build configuration.</p><button class="btn lt" style="margin-top:18px" onclick="go(\'par\')">Back</button>';
 if(!adminUser)return '<h1 class="disp">Admin Login</h1><p class="sm" style="margin-top:8px">Administrator access is protected by Supabase Authentication.</p><div class="card white" style="margin-top:18px"><input id="ae" type="email" placeholder="Admin email"><input id="ap" type="password" placeholder="Password"><button class="btn" onclick="adminLogin()">Sign in</button><p id="aeMsg" class="sm" style="margin-top:10px;text-align:center"></p></div><button class="btn lt" style="margin-top:12px;width:100%" onclick="go(\'par\')">Back</button>';
 const gamesJson=JSON.stringify(remote.games||{},null,2).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const adsJson=JSON.stringify(remote.ads||{enabled:true,list:[]},null,2).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -215,20 +217,23 @@ const U=[];[m,p,vf(p),mut(m)].forEach(x=>{if(!U.some(y=>J(y)===J(x)))U.push(x)})
 const O=sh(U.map((x,i)=>[x,i===0])),dr=(a,z)=>`<div style="display:grid;grid-template-columns:repeat(${n},${z}px);gap:3px;justify-content:center">${a.map(v=>`<i style="width:${z}px;height:${z}px;border-radius:5px;background:${v?'var(--ink)':'rgba(20,21,31,.12)'}"></i>`).join('')}</div>`;
 g.ans=O.findIndex(x=>x[1]);
 setBody(`<div class="card white" style="margin-top:14px;padding:16px">${dr(p,28)}</div>${hint('Which one is the mirror image, flipped left to right?')}<div class="opts" style="margin-top:12px">${O.map((x,i)=>`<button class="o" style="min-height:120px" onclick="pick(this,${i})">${dr(x[0],18)}</button>`).join('')}</div>`)}
-async function adminLogin(){const e=$('#ae')?.value.trim(),p=$('#ap')?.value;if(!cloud||!e||!p)return;const {error}=await cloud.auth.signInWithPassword({email:e,password:p});if(error){$('#aeMsg').textContent=error.message;return}adminUser=(await cloud.auth.getUser()).data.user;go('admin')}
-async function adminLogout(){if(cloud)await cloud.auth.signOut();adminUser=null;go('par')}
+async function adminLogin(){const e=$('#ae')?.value.trim(),p=$('#ap')?.value;if(!cloudReady()||!e||!p)return;try{let user=null;if(cloud){const {data,error}=await cloud.auth.signInWithPassword({email:e,password:p});if(error)throw error;user=data.user;localStorage.setItem('bp_admin_session',data.access_token||'')}else{const r=await fetch(BP_SUPABASE.url+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':BP_SUPABASE.anon,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const data=await r.json();if(!r.ok)throw new Error(data.error_description||data.msg||'Admin sign-in failed');user=data.user;localStorage.setItem('bp_admin_session',data.access_token||'')}adminUser=user;go('admin')}catch(err){$('#aeMsg').textContent=err.message||'Admin sign-in failed'}}
+async function adminLogout(){try{if(cloud)await cloud.auth.signOut()}catch(e){}localStorage.removeItem('bp_admin_session');adminUser=null;go('par')}
 async function publishRemote(){
-if(!cloud||!adminUser)return;
+if(!cloudReady()||!adminUser)return;
 try{
 const games=JSON.parse($('#gamesJson')?.value||'{}');
 const ads=JSON.parse($('#adsJson')?.value||'{"enabled":true,"list":[]}');
 if(typeof games!=='object'||Array.isArray(games))throw new Error('Game content must be a JSON object.');
 if(typeof ads!=='object'||Array.isArray(ads))throw new Error('Advertisement config must be a JSON object.');
 const data={announcement:$('#ann')?.value.trim()||'',games,ads};
-const {error}=await cloud.from('app_config').upsert({id:'main',data,updated_at:new Date().toISOString()});
+let error=null;
+if(cloud){const q=await cloud.from('app_config').upsert({id:'main',data,updated_at:new Date().toISOString()});error=q.error}else{
+const token=localStorage.getItem('bp_admin_session');const r=await fetch(BP_SUPABASE.url+'/rest/v1/app_config?on_conflict=id',{method:'POST',headers:Object.assign(restHeaders(token),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify({id:'main',data,updated_at:new Date().toISOString()})});if(!r.ok)error=new Error(await r.text()||('Publish failed ('+r.status+')'))
+}
 $('#adminMsg').textContent=error?error.message:'Published successfully. Connected users will sync automatically.';
 if(!error){remote=data;try{localStorage.setItem('brainplay_cloud',JSON.stringify(remote))}catch(e){}render()}
 }catch(e){$('#adminMsg').textContent=e.message}
 }
-try{const c=JSON.parse(localStorage.getItem('brainplay_cloud')||'null');if(c){remote=Object.assign(remote,c);adConfig=Object.assign(adConfig,remote.ads?.admob||{})}}catch(e){} render();cloudInit();
+try{const c=JSON.parse(localStorage.getItem('brainplay_cloud')||'null');if(c){remote=Object.assign(remote,c);adConfig=Object.assign(adConfig,remote.ads?.admob||{})}}catch(e){};try{const t=localStorage.getItem('bp_admin_session');if(t&&!adminUser)adminUser={id:'rest-session'}}catch(e){} render();cloudInit();
 </script></body></html>
