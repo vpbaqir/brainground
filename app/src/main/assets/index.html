@@ -70,7 +70,7 @@ async function loadRemote(){if(!cloud)return;try{const {data,error}=await cloud.
 function gameName(id){return remote.games?.[id]?.name||G[id]?.n}
 function gameDesc(id){return remote.games?.[id]?.desc||G[id]?.d}
 function syncAd(){try{if(window.AndroidAd&&AndroidAd.setBannerVisible)AndroidAd.setBannerVisible(!!adConfig.enabled&&['home','game','res','rew'].includes(view))}catch(e){}}
-,D=new Date().toLocaleDateString('en-CA'),Y=new Date(Date.now()-864e5).toLocaleDateString('en-CA');
+const D=new Date().toLocaleDateString('en-CA'),Y=new Date(Date.now()-864e5).toLocaleDateString('en-CA');
 let S={name:'',pin:'',ra:'',lang:'en',days:[],best:0,claimed:[],stars:0,streak:0,last:'',sound:true,daily:'',lv:{p:1,e:1,m:1,o:1},sk:{r:[0,0],m:[0,0],a:[0,0],f:[0,0]},played:{},badges:[]},tok=0,view='home',g={},gate=false,flt='all',pg={pt:0,lk:0,fg:0,ch:0};
 try{const x=JSON.parse(localStorage.getItem(K)||'null');if(x)S=Object.assign(S,x)}catch(e){}
 S.lv=Object.assign({p:1,e:1,m:1,o:1,k:1,l:1,c:1,w:1,q:1,b:1,d:1,g:1,h:1,z:1,t:1,u:1,v:1,n:1,a:1,s:1},S.lv);S.sk=Object.assign({r:[0,0],m:[0,0],a:[0,0],f:[0,0],l:[0,0],s:[0,0]},S.sk);
