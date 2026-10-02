@@ -64,7 +64,7 @@ svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-l
 const $=s=>document.querySelector(s),K='brainplay1';
 const BP_SUPABASE={url:'YOUR_SUPABASE_URL',anon:'YOUR_SUPABASE_ANON_KEY'};
 let cloud=null,remote={announcement:'',games:{},ads:{enabled:true,list:[]}},adminUser=null,cloudTimer=null,adConfig={enabled:false,unitId:'',testMode:true};
-function cloudReady(){return BP_SUPABASE.url.startsWith('https://')&&BP_SUPABASE.anon&&BP_SUPABASE.anon!=='YOUR_SUPABASE_ANON_KEY'}
+function cloudReady(){return BP_SUPABASE.url.startsWith('https://')&&!!BP_SUPABASE.anon}
 function restHeaders(token){return {'apikey':BP_SUPABASE.anon,'Authorization':'Bearer '+(token||BP_SUPABASE.anon),'Content-Type':'application/json'}}
 async function restGetConfig(){const r=await fetch(BP_SUPABASE.url+'/rest/v1/app_config?id=eq.main&select=data',{headers:restHeaders()});if(!r.ok)throw new Error('Cloud read failed ('+r.status+')');const a=await r.json();return a[0]?.data||null}
 async function cloudInit(){if(!cloudReady())return;try{if(window.supabase){cloud=supabase.createClient(BP_SUPABASE.url,BP_SUPABASE.anon);cloud.auth.onAuthStateChange((_e,s)=>{adminUser=s?.user||null;if(view==='admin')render()});try{cloud.channel('app_config_changes').on('postgres_changes',{event:'*',schema:'public',table:'app_config',filter:'id=eq.main'},p=>{if(p.new?.data){remote=Object.assign({announcement:'',games:{},ads:{enabled:true,list:[]}},p.new.data||{});adConfig=Object.assign(adConfig,remote.ads?.admob||{});try{localStorage.setItem('brainplay_cloud',JSON.stringify(remote))}catch(e){};if(view==='home'||view==='res'||view==='par')render()}}).subscribe()}catch(e){}}await loadRemote();cloudTimer=setInterval(loadRemote,10000)}catch(e){console.warn(e)}}
