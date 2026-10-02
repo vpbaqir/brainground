@@ -63,12 +63,13 @@ svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-l
 <script>
 const $=s=>document.querySelector(s),K='brainplay1';
 const BP_SUPABASE={url:'YOUR_SUPABASE_URL',anon:'YOUR_SUPABASE_ANON_KEY'};
-let cloud=null,remote={announcement:'',games:{}},adminUser=null,cloudTimer=null,adConfig={enabled:false,unitId:'',testMode:true};
+let cloud=null,remote={announcement:'',games:{},ads:{}},adminUser=null,cloudTimer=null,adConfig={enabled:true,unitId:'',testMode:true};
 function cloudReady(){return BP_SUPABASE.url.startsWith('https://')&&BP_SUPABASE.anon&&BP_SUPABASE.anon!=='YOUR_SUPABASE_ANON_KEY'&&window.supabase}
 async function cloudInit(){if(!cloudReady())return;try{cloud=supabase.createClient(BP_SUPABASE.url,BP_SUPABASE.anon);await loadRemote();cloud.auth.onAuthStateChange((_e,s)=>{adminUser=s?.user||null;if(view==='admin')render()});cloudTimer=setInterval(loadRemote,10000);try{cloud.channel('app_config_changes').on('postgres_changes',{event:'*',schema:'public',table:'app_config',filter:'id=eq.main'},p=>{if(p.new?.data){remote=Object.assign({announcement:'',games:{}},p.new.data||{});if(view==='home')render()}}).subscribe()}catch(e){}}catch(e){console.warn(e)}}
 async function loadRemote(){if(!cloud)return;try{const {data,error}=await cloud.from('app_config').select('data').eq('id','main').maybeSingle();if(!error&&data){remote=Object.assign({announcement:'',games:{},ads:{}},data.data||{});adConfig=Object.assign(adConfig,remote.ads||{})}if(view==='home')render()}catch(e){}}
 function gameName(id){return remote.games?.[id]?.name||G[id]?.n}
 function gameDesc(id){return remote.games?.[id]?.desc||G[id]?.d}
+function syncAd(){try{if(window.AndroidAd&&AndroidAd.setBannerVisible)AndroidAd.setBannerVisible(!!adConfig.enabled&&['home','game','res','rew'].includes(view))}catch(e){}}
 ,D=new Date().toLocaleDateString('en-CA'),Y=new Date(Date.now()-864e5).toLocaleDateString('en-CA');
 let S={name:'',pin:'',ra:'',lang:'en',days:[],best:0,claimed:[],stars:0,streak:0,last:'',sound:true,daily:'',lv:{p:1,e:1,m:1,o:1},sk:{r:[0,0],m:[0,0],a:[0,0],f:[0,0]},played:{},badges:[]},tok=0,view='home',g={},gate=false,flt='all',pg={pt:0,lk:0,fg:0,ch:0};
 try{const x=JSON.parse(localStorage.getItem(K)||'null');if(x)S=Object.assign(S,x)}catch(e){}
