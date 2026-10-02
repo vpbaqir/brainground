@@ -63,7 +63,7 @@ svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-l
 <script>
 const $=s=>document.querySelector(s),K='brainplay1';
 const BP_SUPABASE={url:'https://lykpwghgolufjsqiilhs.supabase.co',anon:'sb_publishable_H380id1zWzpbxWIpUiPjpw_IyMfquvg'};
-let cloud=null,remote={announcement:'',games:{},ads:{enabled:true,list:[]}},adminUser=null,cloudTimer=null,adConfig={enabled:true,unitId:'',testMode:true};
+let cloud=null,remote={announcement:'',games:{},ads:{enabled:true,list:[]}},adminUser=null,cloudTimer=null,adConfig={enabled:false,unitId:'',testMode:true};
 function cloudReady(){return BP_SUPABASE.url.startsWith('https://')&&BP_SUPABASE.anon&&BP_SUPABASE.anon!=='YOUR_SUPABASE_ANON_KEY'&&window.supabase}
 async function cloudInit(){if(!cloudReady())return;try{cloud=supabase.createClient(BP_SUPABASE.url,BP_SUPABASE.anon);await loadRemote();cloud.auth.onAuthStateChange((_e,s)=>{adminUser=s?.user||null;if(view==='admin')render()});cloudTimer=setInterval(loadRemote,10000);try{cloud.channel('app_config_changes').on('postgres_changes',{event:'*',schema:'public',table:'app_config',filter:'id=eq.main'},p=>{if(p.new?.data){remote=Object.assign({announcement:'',games:{},ads:{enabled:true,list:[]}},p.new.data||{});if(view==='home'||view==='res'||view==='par')render()}}).subscribe()}catch(e){}}catch(e){console.warn(e)}}
 async function loadRemote(){if(!cloud)return;try{const {data,error}=await cloud.from('app_config').select('data').eq('id','main').maybeSingle();if(!error&&data){remote=Object.assign({announcement:'',games:{},ads:{enabled:true,list:[]}},data.data||{});adConfig=Object.assign(adConfig,remote.ads||{})}if(view==='home')render()}catch(e){}}
@@ -85,7 +85,7 @@ let ac;function tone(f,d=.18){if(!S.sound)return;try{ac=ac||new(window.AudioCont
 const dailyId=()=>{const k=Object.keys(G);return k[Math.floor(Date.now()/864e5)%k.length]};
 const streak=()=>S.last===D||S.last===Y?S.streak:0;
 function go(v){tok++;view=v;gate=false;render()}
-function render(){$('#v').innerHTML=V[S.name?view:'wel']();$('#nav').style.display=S.name?'':'none';$('#nav').innerHTML=[['home',ic.home,'Home'],['rew',ic.star,'Rewards'],['par',ic.lock,'Parents']].map(([k,i,l])=>`<button aria-label="${l}" ${view===k||(k==='home'&&view==='game')?'aria-current="page"':''} onclick="go('${k}')">${i}</button>`).join('');window.scrollTo(0,0)}
+function render(){$('#v').innerHTML=V[S.name?view:'wel']();syncAd();$('#nav').style.display=S.name?'':'none';$('#nav').innerHTML=[['home',ic.home,'Home'],['rew',ic.star,'Rewards'],['par',ic.lock,'Parents']].map(([k,i,l])=>`<button aria-label="${l}" ${view===k||(k==='home'&&view==='game')?'aria-current="page"':''} onclick="go('${k}')">${i}</button>`).join('');window.scrollTo(0,0)}
 const V={
 home(){const d=dailyId(),lv=Math.round(Object.values(S.lv).reduce((a,b)=>a+b)/Object.keys(S.lv).length);
 return`<div class="hd"><div><p class="sm">${new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</p><b style="font-size:22px">Hello, ${S.name}</b></div><button class="ib" aria-label="Streak" onclick="go('str')">${ic.flame}</button></div>
