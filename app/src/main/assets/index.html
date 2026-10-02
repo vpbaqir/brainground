@@ -63,10 +63,10 @@ svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-l
 <script>
 const $=s=>document.querySelector(s),K='brainplay1';
 const BP_SUPABASE={url:'YOUR_SUPABASE_URL',anon:'YOUR_SUPABASE_ANON_KEY'};
-let cloud=null,remote={announcement:'',games:{}},adminUser=null,cloudTimer=null;
+let cloud=null,remote={announcement:'',games:{}},adminUser=null,cloudTimer=null,adConfig={enabled:false,unitId:'',testMode:true};
 function cloudReady(){return BP_SUPABASE.url.startsWith('https://')&&BP_SUPABASE.anon&&BP_SUPABASE.anon!=='YOUR_SUPABASE_ANON_KEY'&&window.supabase}
 async function cloudInit(){if(!cloudReady())return;try{cloud=supabase.createClient(BP_SUPABASE.url,BP_SUPABASE.anon);await loadRemote();cloud.auth.onAuthStateChange((_e,s)=>{adminUser=s?.user||null;if(view==='admin')render()});cloudTimer=setInterval(loadRemote,10000);try{cloud.channel('app_config_changes').on('postgres_changes',{event:'*',schema:'public',table:'app_config',filter:'id=eq.main'},p=>{if(p.new?.data){remote=Object.assign({announcement:'',games:{}},p.new.data||{});if(view==='home')render()}}).subscribe()}catch(e){}}catch(e){console.warn(e)}}
-async function loadRemote(){if(!cloud)return;try{const {data,error}=await cloud.from('app_config').select('data').eq('id','main').maybeSingle();if(!error&&data)remote=Object.assign({announcement:'',games:{}},data.data||{});if(view==='home')render()}catch(e){}}
+async function loadRemote(){if(!cloud)return;try{const {data,error}=await cloud.from('app_config').select('data').eq('id','main').maybeSingle();if(!error&&data){remote=Object.assign({announcement:'',games:{},ads:{}},data.data||{});adConfig=Object.assign(adConfig,remote.ads||{})}if(view==='home')render()}catch(e){}}
 function gameName(id){return remote.games?.[id]?.name||G[id]?.n}
 function gameDesc(id){return remote.games?.[id]?.desc||G[id]?.d}
 ,D=new Date().toLocaleDateString('en-CA'),Y=new Date(Date.now()-864e5).toLocaleDateString('en-CA');
@@ -207,6 +207,6 @@ g.ans=O.findIndex(x=>x[1]);
 setBody(`<div class="card white" style="margin-top:14px;padding:16px">${dr(p,28)}</div>${hint('Which one is the mirror image, flipped left to right?')}<div class="opts" style="margin-top:12px">${O.map((x,i)=>`<button class="o" style="min-height:120px" onclick="pick(this,${i})">${dr(x[0],18)}</button>`).join('')}</div>`)}
 async function adminLogin(){const e=$('#ae')?.value.trim(),p=$('#ap')?.value;if(!cloud||!e||!p)return;const {error}=await cloud.auth.signInWithPassword({email:e,password:p});if(error){$('#aeMsg').textContent=error.message;return}adminUser=(await cloud.auth.getUser()).data.user;go('admin')}
 async function adminLogout(){if(cloud)await cloud.auth.signOut();adminUser=null;go('par')}
-async function publishRemote(){if(!cloud||!adminUser)return;const games={...remote.games};Object.keys(G).forEach(k=>{const n=$('#gn_'+k)?.value.trim(),d=$('#gd_'+k)?.value.trim();if(n||d)games[k]={name:n||G[k].n,desc:d||G[k].d}});const data={announcement:$('#ann')?.value.trim()||'',games};const {error}=await cloud.from('app_config').upsert({id:'main',data,updated_at:new Date().toISOString()});$('#adminMsg').textContent=error?error.message:'Published. Users will sync the changes.';if(!error)remote=data}
+async function publishRemote(){if(!cloud||!adminUser)return;const games={...remote.games};Object.keys(G).forEach(k=>{const n=$('#gn_'+k)?.value.trim(),d=$('#gd_'+k)?.value.trim();if(n||d)games[k]={name:n||G[k].n,desc:d||G[k].d}});const data={announcement:$('#ann')?.value.trim()||'',games,ads:remote.ads||adConfig};const {error}=await cloud.from('app_config').upsert({id:'main',data,updated_at:new Date().toISOString()});$('#adminMsg').textContent=error?error.message:'Published. Users will sync the changes.';if(!error)remote=data}
 render();cloudInit();
 </script></body></html>
