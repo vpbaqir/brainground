@@ -62,7 +62,7 @@ svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-l
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $=s=>document.querySelector(s),K='brainplay1';
-const BP_SUPABASE={url:'YOUR_SUPABASE_URL',anon:'YOUR_SUPABASE_ANON_KEY'};
+const BP_SUPABASE={url:'https://lykpwghgolufjsqiilhs.supabase.co',anon:'sb_publishable_H380id1zWzpbxWIpUiPjpw_IyMfquvg'};
 let cloud=null,remote={announcement:'',games:{},ads:{}},adminUser=null,cloudTimer=null,adConfig={enabled:true,unitId:'',testMode:true};
 function cloudReady(){return BP_SUPABASE.url.startsWith('https://')&&BP_SUPABASE.anon&&BP_SUPABASE.anon!=='YOUR_SUPABASE_ANON_KEY'&&window.supabase}
 async function cloudInit(){if(!cloudReady())return;try{cloud=supabase.createClient(BP_SUPABASE.url,BP_SUPABASE.anon);await loadRemote();cloud.auth.onAuthStateChange((_e,s)=>{adminUser=s?.user||null;if(view==='admin')render()});cloudTimer=setInterval(loadRemote,10000);try{cloud.channel('app_config_changes').on('postgres_changes',{event:'*',schema:'public',table:'app_config',filter:'id=eq.main'},p=>{if(p.new?.data){remote=Object.assign({announcement:'',games:{}},p.new.data||{});if(view==='home')render()}}).subscribe()}catch(e){}}catch(e){console.warn(e)}}
