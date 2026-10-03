@@ -12,7 +12,3 @@ android {
         versionName '1.1'
     }
 }
-
-dependencies {
-    implementation 'com.google.android.gms:play-services-ads:25.5.0'
-}
