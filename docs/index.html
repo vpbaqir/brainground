@@ -491,16 +491,32 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const customSbConf = JSON.parse(localStorage.getItem('bp_custom_sb') || '{}');
-const SB = {
-  url: customSbConf.url || 'YOUR_SUPABASE_URL',
-  anon: customSbConf.anon || 'YOUR_SUPABASE_ANON_KEY'
-};
-const isDemoMode = !SB.url.startsWith('https://') || SB.anon === 'YOUR_SUPABASE_ANON_KEY';
+let SB = { url: '', anon: '' };
+let isDemoMode = true;
 let sb = null;
-if (!isDemoMode && window.supabase) {
-  try { sb = supabase.createClient(SB.url, SB.anon); } catch(e){}
+let sbUser = null;
+
+function initSupabaseClient() {
+  const customSbConf = JSON.parse(localStorage.getItem('bp_custom_sb') || '{}');
+  SB.url = customSbConf.url || 'YOUR_SUPABASE_URL';
+  SB.anon = customSbConf.anon || 'YOUR_SUPABASE_ANON_KEY';
+  isDemoMode = !SB.url.startsWith('https://') || SB.anon === 'YOUR_SUPABASE_ANON_KEY';
+  sb = null;
+  sbUser = null;
+  if (!isDemoMode && window.supabase) {
+    try {
+      sb = supabase.createClient(SB.url, SB.anon);
+      sb.auth.getUser().then(({ data }) => {
+        sbUser = data ? data.user : null;
+        if (typeof render === 'function') render();
+      }).catch(() => {});
+    } catch(e){
+      console.warn('Supabase client error:', e);
+    }
+  }
 }
+
+initSupabaseClient();
 
 const clone = x => JSON.parse(JSON.stringify(x));
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
@@ -1019,6 +1035,27 @@ function renderMore() {
 
 function openSupabaseModal() {
   const custom = JSON.parse(localStorage.getItem('bp_custom_sb') || '{}');
+  const isLoggedIn = !!sbUser;
+  const authSection = isDemoMode ? '' : `
+    <div style="background:var(--surface);padding:14px;border-radius:18px;margin-top:14px;margin-bottom:14px;border:1px solid var(--line);">
+      <b style="font-size:13px;display:block;margin-bottom:6px;">Admin Authentication</b>
+      ${isLoggedIn ? `
+        <p style="font-size:12px;color:var(--mint);font-weight:700;">Logged in as: ${esc(sbUser.email)}</p>
+        <button class="btn btn-white" style="margin-top:8px;padding:8px 14px;font-size:12px;" onclick="logoutSupabase()">Sign Out</button>
+      ` : `
+        <div class="field" style="margin-top:8px;">
+          <label style="font-size:11px;">Admin Email</label>
+          <input type="email" id="sb-email-input" placeholder="admin@example.com">
+        </div>
+        <div class="field">
+          <label style="font-size:11px;">Password</label>
+          <input type="password" id="sb-pass-input" placeholder="••••••••">
+        </div>
+        <button class="btn btn-dark" style="margin-top:6px;width:100%;padding:10px;" onclick="loginSupabase()">Sign In as Admin</button>
+      `}
+    </div>
+  `;
+
   openModal(`
     <div class="sheet-header">
       <b>Supabase Cloud Connection</b>
@@ -1037,11 +1074,40 @@ function openSupabaseModal() {
       <label>Supabase Anon Key</label>
       <input type="password" id="sb-key-input" value="${esc(custom.anon || '')}" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
     </div>
-    <div style="margin-top:24px; display:flex; gap:10px;">
+    ${authSection}
+    <div style="margin-top:16px; display:flex; gap:10px;">
       <button class="btn btn-dark" style="flex:1; padding:14px;" onclick="saveSupabaseCredentials()">Save Credentials</button>
       <button class="btn btn-white" style="padding:14px 20px;" onclick="closeModal()">Cancel</button>
     </div>
   `);
+}
+
+async function loginSupabase() {
+  const email = document.getElementById('sb-email-input')?.value.trim();
+  const password = document.getElementById('sb-pass-input')?.value;
+  if (!email || !password) { toast('Please enter email and password'); return; }
+  if (!sb) { toast('Please save valid Supabase URL & Anon key first'); return; }
+  toast('Signing in…');
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    sbUser = data.user;
+    toast('Logged in as ' + sbUser.email);
+    closeModal();
+    render();
+  } catch (err) {
+    toast('Login failed: ' + (err.message || err.error_description));
+  }
+}
+
+async function logoutSupabase() {
+  if (sb) {
+    await sb.auth.signOut();
+    sbUser = null;
+    toast('Signed out of Supabase');
+    closeModal();
+    render();
+  }
 }
 
 function saveSupabaseCredentials() {
@@ -1054,6 +1120,7 @@ function saveSupabaseCredentials() {
     localStorage.setItem('bp_custom_sb', JSON.stringify({ url, anon }));
     toast('Supabase credentials saved successfully!');
   }
+  initSupabaseClient();
   closeModal();
   render();
 }
@@ -1514,16 +1581,20 @@ const A = {
 
     // 2. Also publish to Supabase if configured
     if (!isDemoMode && sb) {
-      try {
-        const { error } = await sb.from('app_config').upsert({ id: 'main', data: baseConfig, updated_at: new Date().toISOString() });
-        if (error) {
-          console.warn('Supabase upsert error:', error);
-          toast('Saved locally, but Supabase write failed: ' + (error.message || error.code));
-        } else {
-          toast('Published! Synced to Supabase Cloud & Local Apps.');
+      if (!sbUser) {
+        toast('Saved locally, but Supabase publish requires admin login (see More > Supabase Credentials)');
+      } else {
+        try {
+          const { error } = await sb.from('app_config').upsert({ id: 'main', data: baseConfig, updated_at: new Date().toISOString() });
+          if (error) {
+            console.warn('Supabase upsert error:', error);
+            toast('Saved locally, but Supabase write failed: ' + (error.message || error.code));
+          } else {
+            toast('Published! Synced to Supabase Cloud & Local Apps.');
+          }
+        } catch (err) {
+          console.warn('Supabase publish exception:', err);
         }
-      } catch (err) {
-        console.warn('Supabase publish exception:', err);
       }
     } else {
       toast('Published! All mobile and web apps synced.');
@@ -1560,19 +1631,37 @@ window.saveMaintenance = saveMaintenance;
 window.downloadBackup = downloadBackup;
 window.resetToBuiltin = resetToBuiltin;
 
-/* Initial Fetch from /api/config */
+/* Dual Mode Data Fetch: Supabase Cloud -> Local /api/config -> Built-in Demo */
 async function initData() {
-  try {
-    const res = await fetch('/api/config');
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.games) {
-        baseConfig = clone(data);
-        draftConfig = clone(data);
+  let loaded = false;
+  if (!isDemoMode && sb) {
+    try {
+      const { data, error } = await sb.from('app_config').select('data').eq('id', 'main').maybeSingle();
+      if (!error && data && data.data && data.data.games) {
+        baseConfig = clone(data.data);
+        draftConfig = clone(data.data);
+        loaded = true;
+        console.log('Loaded config from Supabase Cloud');
       }
+    } catch(e) {
+      console.warn('Could not load from Supabase Cloud:', e);
     }
-  } catch (e) {
-    console.warn('Could not load /api/config, using demo data', e);
+  }
+  if (!loaded) {
+    try {
+      const res = await fetch('/api/config');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.games) {
+          baseConfig = clone(data);
+          draftConfig = clone(data);
+          loaded = true;
+          console.log('Loaded config from local /api/config');
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load /api/config, using demo data', e);
+    }
   }
   render();
 }

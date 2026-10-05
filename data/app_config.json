@@ -1,6 +1,6 @@
 {
-  "rev": 42,
-  "lastPublished": "5 Oct 2026, 18:07",
+  "rev": 44,
+  "lastPublished": "5 Oct 2026, 20:33",
   "announcement": "⚡ Brain Tip: Read carefully and look for hidden patterns before tapping!",
   "ads": {
     "enabled": true,
@@ -90,6 +90,23 @@
           ]
         }
       ]
+    },
+    "cg_muvdpve9": {
+      "name": "dfdaf",
+      "desc": "adfdf",
+      "skill": "f",
+      "color": "mint",
+      "enabled": true,
+      "questions": [
+        {
+          "question": "adfsd",
+          "answer": "adsf",
+          "options": [
+            "adsf",
+            "dfaf"
+          ]
+        }
+      ]
     }
   },
   "rewards": {
@@ -114,5 +131,5 @@
   "noticeEnabled": true,
   "noticeColor": "sky",
   "noticeMode": "popup",
-  "dailyGame": ""
+  "dailyGame": "p"
 }

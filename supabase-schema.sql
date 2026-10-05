@@ -37,6 +37,12 @@ to authenticated
 using (exists (select 1 from public.admin_users a where a.user_id=(select auth.uid())))
 with check (exists (select 1 from public.admin_users a where a.user_id=(select auth.uid())));
 
+drop policy if exists "admin insert app config" on public.app_config;
+create policy "admin insert app config"
+on public.app_config for insert
+to authenticated
+with check (exists (select 1 from public.admin_users a where a.user_id=(select auth.uid())));
+
 insert into public.app_config (id, data)
 values ('main', jsonb_build_object(
   'announcement', '',
