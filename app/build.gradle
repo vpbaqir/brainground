@@ -1,0 +1,17 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.vpbaqir.brainplayground'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.vpbaqir.brainplayground'
+        minSdk 24
+        targetSdk 35
+        versionCode 3
+        versionName '1.2'
+    }
+}
+
+dependencies {
+}

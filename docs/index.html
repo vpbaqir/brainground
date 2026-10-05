@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex">
+<title>Brain Playground - Control Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas: #F0F0F4;
+  --surface: #F6F6F8;
+  --card-bg: #FFFFFF;
+  --ink: #12131C;
+  --ink2: #656778;
+  --ink3: #9193A5;
+  --line: #E7E7ED;
+  --lilac: #B8A4FF;
+  --peach: #FCB958;
+  --sky: #A3C9FF;
+  --mint: #A4E6BA;
+  --lemon: #FFE663;
+  --coral: #F7B5B5;
+  --dock-bg: #14151F;
+  --yellow-bar: #FFDE59;
+  --font: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  margin: 0;
+  background: var(--canvas);
+  font-family: var(--font);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* App frame matching mobile-first layout */
+#app {
+  max-width: 440px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: var(--surface);
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 18px calc(150px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  box-shadow: 0 20px 45px -15px rgba(25, 20, 50, 0.12);
+}
+
+@media (min-width: 500px) {
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 24px 0;
+  }
+  #app {
+    min-height: 900px;
+    border-radius: 40px;
+    border: 1px solid rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+}
+
+h1, h2, h3, p { margin: 0; }
+.sub-title { font-size: 13px; font-weight: 600; color: var(--ink2); margin-bottom: 2px; }
+.header-title { font-size: 32px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; }
+.desc-text { font-size: 13px; color: var(--ink2); font-weight: 500; line-height: 1.45; margin-top: 5px; }
+
+/* Rounded Cards */
+.card {
+  border-radius: 28px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.card.lilac { background: var(--lilac); color: var(--ink); }
+.card.mint { background: var(--mint); color: var(--ink); }
+.card.peach { background: var(--peach); color: var(--ink); }
+.card.sky { background: var(--sky); color: var(--ink); }
+.card.lemon { background: var(--lemon); color: var(--ink); }
+.card.white { background: var(--card-bg); border: 1px solid var(--line); }
+
+/* Chips & Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.badge.published { background: rgba(255, 255, 255, 0.65); color: var(--ink); }
+.badge.live { background: #D5F6DD; color: #18793B; }
+.badge.expired { background: #ECECF0; color: #6D6F80; }
+.badge.paused { background: #FFF0CC; color: #8F6000; }
+
+/* Bento Metric Cards (2x2 grid) */
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+.bento-card {
+  border-radius: 26px;
+  padding: 16px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 118px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.bento-card:active { transform: scale(0.97); }
+.bento-card small { font-size: 13px; font-weight: 600; opacity: 0.9; }
+.bento-card b { font-size: 36px; font-weight: 800; letter-spacing: -0.03em; margin-top: 16px; line-height: 1; }
+
+/* Needs Attention list */
+.section-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 26px 0 12px;
+}
+.attention-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.attention-item {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  transition: background 0.15s, transform 0.1s;
+}
+.attention-item:active { transform: scale(0.98); background: #FAF9FB; }
+.attention-item span { flex: 1; margin-right: 12px; }
+.attention-item .arrow { font-size: 16px; color: var(--ink2); font-weight: 800; }
+
+/* Interactive Buttons */
+.btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s, opacity 0.15s;
+}
+.btn:active { transform: scale(0.96); }
+.btn-dark { background: var(--dock-bg); color: #FFF; }
+.btn-white { background: #FFF; color: var(--ink); border: 1px solid var(--line); }
+.btn-danger { background: #FFE8E8; color: #D12626; border: 1px solid #FFD4D4; }
+
+/* iOS style toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 30px;
+  flex-shrink: 0;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #E3E3E8;
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 999px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+}
+input:checked + .slider { background-color: var(--dock-bg); }
+input:checked + .slider:before { transform: translateX(20px); }
+
+/* Master switch card */
+.master-card {
+  background: var(--card-bg);
+  border-radius: 24px;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+.master-card b { display: block; font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+.master-card p { font-size: 12px; color: var(--ink2); font-weight: 500; margin-top: 3px; }
+
+/* Filter Tabs / Chips */
+.filter-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 16px 0 14px;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.filter-scroll::-webkit-scrollbar { display: none; }
+.filter-chip {
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.filter-chip.active {
+  background: var(--dock-bg);
+  color: #FFF;
+  border-color: var(--dock-bg);
+}
+
+/* Item List Cards (Games, Sponsors) */
+.item-card {
+  background: var(--card-bg);
+  border-radius: 24px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.item-info { flex: 1; min-width: 0; }
+.item-info b { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; display: block; }
+.item-info p { font-size: 12px; color: var(--ink2); font-weight: 500; margin-top: 4px; }
+.item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Sponsor item specifics */
+.sponsor-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.sponsor-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 18px;
+  background: #B7A3FF;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.sponsor-logo img { width: 100%; height: 100%; object-fit: contain; }
+.sponsor-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.sponsor-actions .btn {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+/* Floating Unpublished Changes Banner */
+.unpub-banner {
+  position: fixed;
+  bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(404px, calc(100% - 36px));
+  background: var(--yellow-bar);
+  border-radius: 999px;
+  padding: 7px 8px 7px 20px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 90;
+  box-shadow: 0 10px 25px rgba(100, 75, 0, 0.15);
+  animation: slideUp 0.25s ease-out;
+}
+.unpub-banner.show { display: flex; }
+.unpub-banner span {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.unpub-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.unpub-buttons .btn {
+  padding: 8px 16px;
+  min-height: 38px;
+}
+
+/* Floating Bottom Navigation Pill Dock */
+.dock-nav {
+  position: fixed;
+  bottom: max(14px, env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(404px, calc(100% - 36px));
+  background: var(--dock-bg);
+  border-radius: 999px;
+  padding: 6px 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+}
+.dock-item {
+  border: 0;
+  background: none;
+  color: #8C8F9F;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  white-space: nowrap;
+}
+.dock-item.active {
+  background: #FFF;
+  color: var(--dock-bg);
+}
+
+/* Modal Bottom Sheet */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(18, 19, 28, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-sheet {
+  background: var(--surface);
+  width: min(440px, 100%);
+  max-height: 88vh;
+  border-radius: 32px 32px 0 0;
+  padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.25);
+  animation: sheetUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sheet-handle {
+  width: 40px;
+  height: 5px;
+  background: #D5D5DC;
+  border-radius: 999px;
+  margin: 0 auto 16px;
+}
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.sheet-header b { font-size: 20px; font-weight: 800; }
+.sheet-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #FFF;
+  cursor: pointer;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+/* Form inputs inside sheet */
+.field { margin-top: 14px; }
+.field label { display: block; font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.field input, .field textarea, .field select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #FFF;
+  color: var(--ink);
+  font: 600 14px var(--font);
+}
+.field textarea { min-height: 80px; resize: vertical; }
+
+/* Toast */
+#toast {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--dock-bg);
+  color: #FFF;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+#toast.on { opacity: 1; }
+
+@keyframes slideUp {
+  from { transform: translate(-50%, 20px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<!-- Floating Unpublished Changes Bar -->
+<div id="unpub-bar" class="unpub-banner">
+  <span>Unpublished changes</span>
+  <div class="unpub-buttons">
+    <button class="btn btn-dark" onclick="A.publish()">Publish</button>
+    <button class="btn btn-white" onclick="A.discard()">Discard</button>
+  </div>
+</div>
+
+<!-- Floating Bottom Navigation Dock -->
+<nav class="dock-nav" id="dock">
+  <button class="dock-item active" data-tab="home" onclick="setTab('home')">Home</button>
+  <button class="dock-item" data-tab="games" onclick="setTab('games')">Games</button>
+  <button class="dock-item" data-tab="sponsors" onclick="setTab('sponsors')">Sponsors</button>
+  <button class="dock-item" data-tab="notice" onclick="setTab('notice')">Notice</button>
+  <button class="dock-item" data-tab="more" onclick="setTab('more')">More</button>
+</nav>
+
+<!-- Modal Sheet Overlay -->
+<div id="modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-sheet" id="modal-content"></div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const customSbConf = JSON.parse(localStorage.getItem('bp_custom_sb') || '{}');
+const SB = {
+  url: customSbConf.url || 'YOUR_SUPABASE_URL',
+  anon: customSbConf.anon || 'YOUR_SUPABASE_ANON_KEY'
+};
+const isDemoMode = !SB.url.startsWith('https://') || SB.anon === 'YOUR_SUPABASE_ANON_KEY';
+let sb = null;
+if (!isDemoMode && window.supabase) {
+  try { sb = supabase.createClient(SB.url, SB.anon); } catch(e){}
+}
+
+const clone = x => JSON.parse(JSON.stringify(x));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
+
+const SKILLS = {
+  r: 'Reasoning',
+  m: 'Memory',
+  a: 'Maths',
+  f: 'Focus',
+  l: 'Language',
+  s: 'Spatial'
+};
+
+const GAMES_CATALOG = {
+  p: ['Pattern detective', 'Reasoning', 'r', 'lilac'],
+  e: ['Echo', 'Memory', 'm', 'peach'],
+  m: ['Number chef', 'Maths', 'a', 'mint'],
+  o: ['Sharp eye', 'Focus', 'f', 'sky'],
+  k: ['Memory match', 'Memory', 'm', 'lemon'],
+  l: ['Logic clues', 'Reasoning', 'r', 'coral'],
+  c: ['Colour clash', 'Focus', 'f', 'sky'],
+  w: ['Word builder', 'Language', 'l', 'lilac'],
+  q: ['Shape sequence', 'Reasoning', 'r', 'lilac'],
+  b: ['Balance scale', 'Reasoning', 'r', 'coral'],
+  d: ['Odd word out', 'Reasoning', 'r', 'mint'],
+  g: ['Digit flash', 'Memory', 'm', 'peach'],
+  h: ['What is missing', 'Memory', 'm', 'sky'],
+  z: ['Backwards echo', 'Memory', 'm', 'lemon'],
+  t: ['Speed sums', 'Maths', 'a', 'coral'],
+  u: ['Make the target', 'Maths', 'a', 'lilac'],
+  v: ['Greater or less', 'Maths', 'a', 'mint'],
+  n: ['Count flash', 'Focus', 'f', 'peach'],
+  a: ['Missing letter', 'Language', 'l', 'sky'],
+  s: ['Mirror match', 'Spatial', 's', 'lemon']
+};
+
+/* Default Demo Dataset matching screenshots */
+const INITIAL_DEMO_CONFIG = {
+  rev: 4,
+  lastPublished: '3 Oct 2026, 10:00',
+  announcement: 'Welcome to Brain Playground! New questions updated.',
+  ads: {
+    enabled: true,
+    list: [
+      {
+        id: 'sp1',
+        name: 'Sample Bookshop',
+        text: 'Books for curious minds',
+        slots: ['home', 'result'],
+        start: '2026-10-01',
+        end: '2026-10-08',
+        enabled: true,
+        logoLetter: 'S'
+      },
+      {
+        id: 'sp2',
+        name: 'Old Tuition',
+        text: 'Ended',
+        slots: ['home'],
+        start: '2026-08-01',
+        end: '2026-09-01',
+        enabled: false,
+        logoLetter: 'O'
+      }
+    ]
+  },
+  games: {
+    p: { name: 'Pattern detective', enabled: true, questions: [{ q: 'What comes next?' }] },
+    e: { name: 'Echo', enabled: true, questions: [] },
+    m: { name: 'Number chef', enabled: true, questions: [] },
+    o: { name: 'Sharp eye', enabled: true, questions: [] },
+    k: { name: 'Memory match', enabled: true, questions: [] },
+    l: { name: 'Logic clues', enabled: false, questions: [] } // 1 switched off
+  },
+  rewards: { per: 1, bonus: 2, daily: 2, ms: [{ d: 3, s: 5 }, { d: 7, s: 15 }] },
+  maintenance: { on: false, msg: '' }
+};
+
+let currentTab = 'home';
+let gameFilter = 'All';
+let baseConfig = clone(INITIAL_DEMO_CONFIG);
+let draftConfig = clone(INITIAL_DEMO_CONFIG);
+let authed = isDemoMode;
+let busy = false;
+
+function isDirty() {
+  return JSON.stringify(draftConfig) !== JSON.stringify(baseConfig);
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => el.classList.remove('on'), 3000);
+}
+
+function updateUnpubBar() {
+  const bar = document.getElementById('unpub-bar');
+  if (isDirty() || busy) {
+    bar.classList.add('show');
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+function setTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.dock-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  render();
+}
+
+function getGame(id) {
+  const g = draftConfig.games[id] || {};
+  const cat = GAMES_CATALOG[id];
+  return {
+    name: g.name || (cat ? cat[0] : 'Custom Game'),
+    desc: g.desc || (cat ? cat[1] : 'Brain challenge'),
+    category: g.skill || (cat ? cat[2] : 'r'),
+    color: g.color || (cat ? cat[3] : 'lilac'),
+    enabled: g.enabled !== false,
+    questions: g.questions || []
+  };
+}
+
+function getSponsorStatus(sp) {
+  const today = new Date().toISOString().split('T')[0];
+  if (sp.enabled === false) return { label: 'Paused', cls: 'paused' };
+  if (sp.end && sp.end < today) return { label: 'Expired', cls: 'expired' };
+  return { label: 'Live', cls: 'live' };
+}
+
+/* ----------------- VIEWS ----------------- */
+
+function renderHome() {
+  const ids = Object.keys(GAMES_CATALOG);
+  const totalGames = ids.length;
+  const gamesOn = ids.filter(i => getGame(i).enabled).length;
+  const customQuestions = ids.reduce((n, i) => n + getGame(i).questions.length, 0);
+  const liveSponsors = (draftConfig.ads.list || []).filter(x => getSponsorStatus(x).label === 'Live').length;
+  const noticeOn = !!draftConfig.announcement;
+
+  // Build Attention list
+  const attentionItems = [];
+  (draftConfig.ads.list || []).forEach((x, idx) => {
+    const st = getSponsorStatus(x);
+    if (st.label === 'Live' && x.end) {
+      attentionItems.push({
+        text: `${x.name}: ends ${x.end}`,
+        action: () => openSponsorEdit(idx)
+      });
+    } else if (st.label === 'Expired') {
+      attentionItems.push({
+        text: `${x.name}: sponsorship ended`,
+        action: () => openSponsorEdit(idx)
+      });
+    }
+  });
+
+  const offGames = totalGames - gamesOn;
+  if (offGames > 0) {
+    attentionItems.push({
+      text: `${offGames} game(s) switched off`,
+      action: () => { setTab('games'); gameFilter = 'All'; render(); }
+    });
+  }
+
+  const dirty = isDirty();
+
+  return `
+    <div style="margin-top: 4px;">
+      <p class="sub-title">Control centre</p>
+      <h1 class="header-title">${dirty ? 'Unpublished changes' : 'All live'}</h1>
+    </div>
+
+    <!-- Top Status Card -->
+    <div class="card lilac" style="margin-top: 16px;">
+      <span class="badge published">${dirty ? 'Draft pending' : 'Published'}</span>
+      <h2 style="font-size: 24px; font-weight: 800; letter-spacing: -0.025em; margin-top: 14px; line-height: 1.15;">
+        ${dirty ? 'You have draft edits' : 'Everything is up to date'}
+      </h2>
+      <p style="font-size: 13px; font-weight: 600; opacity: 0.85; margin-top: 6px;">
+        Last published ${baseConfig.lastPublished || 'Recently'}
+      </p>
+    </div>
+
+    <!-- Bento Metric Cards -->
+    <div class="bento-grid">
+      <div class="bento-card card mint" onclick="setTab('games')">
+        <small>Games on</small>
+        <b>${gamesOn}/${totalGames}</b>
+      </div>
+      <div class="bento-card card peach" onclick="setTab('games')">
+        <small>Custom questions</small>
+        <b>${customQuestions}</b>
+      </div>
+      <div class="bento-card card sky" onclick="setTab('sponsors')">
+        <small>Sponsors live</small>
+        <b>${liveSponsors}</b>
+      </div>
+      <div class="bento-card card lemon" onclick="setTab('notice')">
+        <small>Notice</small>
+        <b style="font-size: 32px;">${noticeOn ? 'On' : 'Off'}</b>
+      </div>
+    </div>
+
+    <!-- Needs attention section -->
+    <h3 class="section-title">Needs attention</h3>
+    <div class="attention-list">
+      ${attentionItems.map((item, i) => `
+        <div class="attention-item" onclick="window.attentionActions[${i}]()">
+          <span>${esc(item.text)}</span>
+          <div class="arrow">›</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderGames() {
+  const categories = ['All', 'Reasoning', 'Memory', 'Maths', 'Focus', 'Language', 'Spatial'];
+  const allIds = Array.from(new Set([...Object.keys(GAMES_CATALOG), ...Object.keys(draftConfig.games || {})]));
+  const ids = allIds.filter(id => {
+    if (gameFilter === 'All') return true;
+    const g = getGame(id);
+    return SKILLS[g.category] === gameFilter;
+  });
+
+  return `
+    <div class="item-header" style="margin-top: 4px; align-items: flex-start;">
+      <div>
+        <h1 class="header-title">Games</h1>
+        <p class="desc-text">Create, rename, switch off, and add custom questions.</p>
+      </div>
+      <button class="btn btn-dark" onclick="openNewGame()">+ Add Game</button>
+    </div>
+
+    <!-- Featured Daily Challenge Selector -->
+    <div class="card lilac" style="padding: 16px 20px; border-radius: 22px; margin-top: 14px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <span class="chip dk" style="font-size: 11px; padding: 4px 10px; background: rgba(0,0,0,0.12); color: var(--ink);">Featured on App Dashboard</span>
+          <b style="display: block; margin-top: 6px; font-size: 16px;">Daily Challenge Game</b>
+          <p style="font-size: 12px; margin-top: 2px; color: var(--ink2);">Kids get double stars when playing this featured game today.</p>
+        </div>
+        <select style="border-radius: 14px; border: 1px solid rgba(0,0,0,0.1); padding: 10px 14px; font-weight: 700; background: #fff;" onchange="setDailyChallenge(this.value)">
+          <option value="">Auto-Rotate Daily (Default)</option>
+          ${allIds.map(id => `<option value="${id}" ${draftConfig.dailyGame === id ? 'selected' : ''}>★ ${esc(getGame(id).name)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+
+    <!-- Category Filter Chips -->
+    <div class="filter-scroll" style="margin-top: 14px;">
+      ${categories.map(cat => `
+        <button class="filter-chip ${gameFilter === cat ? 'active' : ''}" onclick="setGameFilter('${cat}')">
+          ${cat}
+        </button>
+      `).join('')}
+    </div>
+
+    <!-- Games List -->
+    <div style="margin-top: 6px;">
+      ${ids.map(id => {
+        const g = getGame(id);
+        const skillName = SKILLS[g.category] || 'Reasoning';
+        const isCustom = !GAMES_CATALOG[id];
+        return `
+          <div class="item-card">
+            <div class="item-header">
+              <div class="item-info">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <b>${esc(g.name)}</b>
+                  ${isCustom ? '<span class="badge live" style="font-size:10px;">Custom</span>' : ''}
+                </div>
+                <p>${skillName} · ${g.questions.length} custom questions</p>
+              </div>
+              <div class="item-actions">
+                <button class="btn btn-white" onclick="openGameEdit('${id}')">Edit</button>
+                <label class="switch">
+                  <input type="checkbox" ${g.enabled ? 'checked' : ''} onchange="toggleGame('${id}', this.checked)">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderSponsors() {
+  const list = draftConfig.ads.list || [];
+  const liveCount = list.filter(x => getSponsorStatus(x).label === 'Live').length;
+
+  return `
+    <div class="item-header" style="margin-top: 4px; align-items: flex-start;">
+      <div>
+        <h1 class="header-title">Sponsors</h1>
+        <p class="desc-text">${liveCount} live of ${list.length}. Max 8.</p>
+      </div>
+      <button class="btn btn-dark" onclick="openNewSponsor()">Add</button>
+    </div>
+
+    <!-- Master Switch -->
+    <div class="master-card">
+      <div>
+        <b>Show sponsors in the app</b>
+        <p>Master switch for all sponsors.</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" ${draftConfig.ads.enabled !== false ? 'checked' : ''} onchange="toggleMasterAds(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Sponsors List -->
+    <div style="margin-top: 14px;">
+      ${list.map((sp, idx) => {
+        const st = getSponsorStatus(sp);
+        const letter = sp.logoLetter || (sp.name ? sp.name[0].toUpperCase() : 'S');
+        const slotsStr = (sp.slots || ['home']).join(', ');
+        const dateStr = sp.start && sp.end ? `${sp.start} to ${sp.end}` : (sp.end ? `ends ${sp.end}` : '');
+        return `
+          <div class="item-card">
+            <div class="sponsor-row">
+              <div class="sponsor-logo">
+                ${sp.logo ? `<img alt="" src="${esc(sp.logo)}">` : letter}
+              </div>
+              <div class="item-info">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <b>${esc(sp.name || 'Unnamed')}</b>
+                  <span class="badge ${st.cls}">${st.label}</span>
+                </div>
+                <p style="color: var(--ink); margin-top: 2px;">${esc(sp.text || '')}</p>
+                <p style="font-size: 11px; margin-top: 2px;">${slotsStr}${dateStr ? ' · ' + dateStr : ''}</p>
+              </div>
+            </div>
+            <div class="sponsor-actions">
+              <button class="btn btn-white" onclick="openSponsorEdit(${idx})">Edit</button>
+              <button class="btn btn-white" onclick="togglePauseSponsor(${idx})">
+                ${sp.enabled === false ? 'Resume' : 'Pause'}
+              </button>
+              <button class="btn btn-white" onclick="deleteSponsor(${idx})">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderNotice() {
+  const isEnabled = draftConfig.noticeEnabled !== false && !!draftConfig.announcement;
+  const mode = draftConfig.noticeMode || 'both';
+
+  return `
+    <div style="margin-top: 4px;">
+      <h1 class="header-title">Special Events & Notice</h1>
+      <p class="desc-text">Send instant alerts, welcome greetings, holiday messages, or new game announcements.</p>
+    </div>
+
+    <!-- Master Notice Switch -->
+    <div class="master-card" style="margin-top: 16px;">
+      <div>
+        <b>Broadcast Notice to Kids App</b>
+        <p>Turn on/off without deleting your message text.</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="notice-enabled-toggle" ${isEnabled ? 'checked' : ''} onchange="toggleNoticeEnabled(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Quick Inspiration Templates -->
+    <div style="margin-top: 18px;">
+      <b style="font-size: 13px; color: var(--ink);">⚡ Quick Templates (Click to fill)</b>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+        <button class="btn btn-white" style="font-size: 12px; padding: 8px 14px; border-radius: 999px;" onclick="applyNoticeTemplate('🚀 New special mini-games have just unlocked! Tap Play now to try them out.')">🚀 New Game</button>
+        <button class="btn btn-white" style="font-size: 12px; padding: 8px 14px; border-radius: 999px;" onclick="applyNoticeTemplate('🌟 Weekend Double Stars! Complete any 2 games today to earn extra badges.')">🌟 Weekend Challenge</button>
+        <button class="btn btn-white" style="font-size: 12px; padding: 8px 14px; border-radius: 999px;" onclick="applyNoticeTemplate('🎉 Happy Holidays from Brain Playground! Keep your brain streak shining strong!')">🎉 Holiday Greeting</button>
+        <button class="btn btn-white" style="font-size: 12px; padding: 8px 14px; border-radius: 999px;" onclick="applyNoticeTemplate('⚡ Brain Tip: Read carefully and look for hidden patterns before tapping!')">💡 Brain Tip</button>
+      </div>
+    </div>
+
+    <!-- Notice Editor Card -->
+    <div class="card white" style="margin-top: 14px;">
+      <div class="field">
+        <label>Announcement Message</label>
+        <textarea id="notice-input" placeholder="Type your special message or greeting here..." oninput="updateNotice(this.value)">${esc(draftConfig.announcement || '')}</textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+        <div class="field">
+          <label>Display Format in App</label>
+          <select id="notice-mode-select" onchange="updateNoticeMode(this.value)">
+            <option value="both" ${mode==='both'?'selected':''}>Popup on Open + Home Banner</option>
+            <option value="popup" ${mode==='popup'?'selected':''}>Popup Modal on Open only</option>
+            <option value="banner" ${mode==='banner'?'selected':''}>Home Screen Banner only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Banner Color Theme</label>
+          <select id="notice-color-select" onchange="updateNoticeColor(this.value)">
+            <option value="lemon" ${(draftConfig.noticeColor||'lemon')==='lemon'?'selected':''}>Lemon Yellow (Warm & Friendly)</option>
+            <option value="peach" ${draftConfig.noticeColor==='peach'?'selected':''}>Peach Orange (Special)</option>
+            <option value="sky" ${draftConfig.noticeColor==='sky'?'selected':''}>Sky Blue (Information)</option>
+            <option value="mint" ${draftConfig.noticeColor==='mint'?'selected':''}>Mint Green (Rewards)</option>
+            <option value="lilac" ${draftConfig.noticeColor==='lilac'?'selected':''}>Lilac Purple (Mystery)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top: 14px; display: flex; gap: 10px;">
+        <button class="btn btn-white" onclick="clearNotice()">Clear Message</button>
+      </div>
+    </div>
+
+    <!-- Live Preview -->
+    <h3 class="section-title">Live App Preview</h3>
+    <div class="card ${draftConfig.noticeColor || 'lemon'}" style="padding: 18px 20px; border-radius: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <b style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8;">App Banner Preview</b>
+        <span class="badge ${isEnabled ? 'live' : 'paused'}">${isEnabled ? 'Active in App' : 'Disabled'}</span>
+      </div>
+      <p style="font-size: 15px; font-weight: 700; margin-top: 8px; line-height: 1.4;">
+        ${esc(draftConfig.announcement || 'No active announcement.')}
+      </p>
+    </div>
+  `;
+}
+
+function toggleNoticeEnabled(checked) {
+  draftConfig.noticeEnabled = checked;
+  updateUnpubBar();
+  render();
+}
+
+function applyNoticeTemplate(txt) {
+  draftConfig.announcement = txt;
+  draftConfig.noticeEnabled = true;
+  updateUnpubBar();
+  render();
+}
+
+function updateNoticeMode(val) {
+  draftConfig.noticeMode = val;
+  updateUnpubBar();
+}
+
+function updateNoticeColor(val) {
+  draftConfig.noticeColor = val;
+  updateUnpubBar();
+  render();
+}
+
+function clearNotice() {
+  draftConfig.announcement = '';
+  draftConfig.noticeEnabled = false;
+  updateUnpubBar();
+  render();
+}
+
+function setDailyChallenge(gameId) {
+  draftConfig.dailyGame = gameId;
+  updateUnpubBar();
+  render();
+  toast(gameId ? 'Daily challenge game set!' : 'Daily challenge set to auto-rotate.');
+}
+
+function renderMore() {
+  const customSb = localStorage.getItem('bp_custom_sb');
+  let sbStatus = isDemoMode ? 'Local Dev / Server-Sent Events' : 'Connected to Supabase';
+  if (customSb) sbStatus = 'Custom Supabase Connected';
+
+  return `
+    <div style="margin-top: 4px;">
+      <h1 class="header-title">More</h1>
+      <p class="desc-text">Advanced settings, Supabase deployment, and system controls.</p>
+    </div>
+
+    <div class="attention-list" style="margin-top: 16px;">
+      <div class="attention-item" onclick="openSupabaseModal()">
+        <span>☁️ Supabase Cloud Credentials</span>
+        <div class="arrow">›</div>
+      </div>
+      <div class="attention-item" onclick="openRewardsModal()">
+        <span>⭐ Rewards & Star Rules</span>
+        <div class="arrow">›</div>
+      </div>
+      <div class="attention-item" onclick="openMaintenanceModal()">
+        <span>🛑 Maintenance Mode Kill-switch</span>
+        <div class="arrow">›</div>
+      </div>
+      <div class="attention-item" onclick="downloadBackup()">
+        <span>💾 Download JSON Backup</span>
+        <div class="arrow">›</div>
+      </div>
+      <div class="attention-item" onclick="resetToBuiltin()">
+        <span>🔄 Reset All Drafts to Default</span>
+        <div class="arrow">›</div>
+      </div>
+    </div>
+
+    <div class="card white" style="margin-top: 20px;">
+      <b style="font-size: 15px; font-weight: 800;">Backend: ${sbStatus}</b>
+      <p class="desc-text" style="margin-top: 4px;">
+        Publishing sends instant real-time sync events to all connected child apps.
+      </p>
+    </div>
+  `;
+}
+
+function openSupabaseModal() {
+  const custom = JSON.parse(localStorage.getItem('bp_custom_sb') || '{}');
+  openModal(`
+    <div class="sheet-header">
+      <b>Supabase Cloud Connection</b>
+      <button class="sheet-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="background:var(--surface);padding:14px;border-radius:18px;margin-bottom:14px;border:1px solid var(--line);">
+      <p style="font-size:12px;color:var(--ink);line-height:1.4;">
+        Connect to your cloud project to publish updates live to devices anywhere in the world without a local server.
+      </p>
+    </div>
+    <div class="field">
+      <label>Supabase Project URL</label>
+      <input type="url" id="sb-url-input" value="${esc(custom.url || '')}" placeholder="https://your-project.supabase.co">
+    </div>
+    <div class="field">
+      <label>Supabase Anon Key</label>
+      <input type="password" id="sb-key-input" value="${esc(custom.anon || '')}" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+    </div>
+    <div style="margin-top:24px; display:flex; gap:10px;">
+      <button class="btn btn-dark" style="flex:1; padding:14px;" onclick="saveSupabaseCredentials()">Save Credentials</button>
+      <button class="btn btn-white" style="padding:14px 20px;" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+
+function saveSupabaseCredentials() {
+  const url = document.getElementById('sb-url-input').value.trim();
+  const anon = document.getElementById('sb-key-input').value.trim();
+  if (!url || !anon) {
+    localStorage.removeItem('bp_custom_sb');
+    toast('Cleared custom Supabase. Reverted to local mode.');
+  } else {
+    localStorage.setItem('bp_custom_sb', JSON.stringify({ url, anon }));
+    toast('Supabase credentials saved successfully!');
+  }
+  closeModal();
+  render();
+}
+
+function render() {
+  const container = document.getElementById('app');
+  let content = '';
+
+  window.attentionActions = [];
+
+  if (currentTab === 'home') content = renderHome();
+  else if (currentTab === 'games') content = renderGames();
+  else if (currentTab === 'sponsors') content = renderSponsors();
+  else if (currentTab === 'notice') content = renderNotice();
+  else if (currentTab === 'more') content = renderMore();
+
+  container.innerHTML = content;
+  updateUnpubBar();
+}
+
+/* ----------------- ACTIONS & MODALS ----------------- */
+
+function setGameFilter(cat) {
+  gameFilter = cat;
+  render();
+}
+
+function toggleGame(id, checked) {
+  draftConfig.games[id] = draftConfig.games[id] || {};
+  draftConfig.games[id].enabled = checked;
+  render();
+}
+
+function toggleMasterAds(checked) {
+  draftConfig.ads.enabled = checked;
+  render();
+}
+
+function togglePauseSponsor(idx) {
+  const sp = draftConfig.ads.list[idx];
+  if (!sp) return;
+  sp.enabled = sp.enabled === false;
+  render();
+}
+
+function deleteSponsor(idx) {
+  if (!confirm('Delete this sponsor?')) return;
+  draftConfig.ads.list.splice(idx, 1);
+  render();
+}
+
+function updateNotice(text) {
+  draftConfig.announcement = text;
+  updateUnpubBar();
+}
+
+function openModal(html) {
+  const modal = document.getElementById('modal');
+  const content = document.getElementById('modal-content');
+  content.innerHTML = `
+    <div class="sheet-handle"></div>
+    ${html}
+  `;
+  modal.classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+/* Game Editor & Creator Modals */
+function openNewGame() {
+  const newId = 'cg_' + Date.now().toString(36);
+  openModal(`
+    <div class="sheet-header">
+      <b>Create Special Game</b>
+      <button class="sheet-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="background:var(--surface);padding:12px 16px;border-radius:18px;margin-bottom:14px;border:1px solid var(--line);">
+      <span style="font-size:12px;font-weight:700;color:var(--ink);">🚀 Publish special games anytime</span>
+      <p style="font-size:11px;color:var(--ink2);margin-top:2px;">Create word puzzles, trivia, knowledge games, or fun challenge riddles with multiple choice options.</p>
+    </div>
+    <div class="field">
+      <label>Game Title</label>
+      <input type="text" id="new-gname" placeholder="e.g. Animal Kingdom Trivia, Space Quest">
+    </div>
+    <div class="field">
+      <label>Subtitle / Instructions</label>
+      <input type="text" id="new-gdesc" placeholder="e.g. Choose the fastest creature on Earth!">
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div class="field">
+        <label>Skill Category</label>
+        <select id="new-gskill">
+          ${Object.entries(SKILLS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Color Theme</label>
+        <select id="new-gcolor">
+          <option value="peach">Peach</option>
+          <option value="lilac">Lilac</option>
+          <option value="sky">Sky</option>
+          <option value="mint">Mint</option>
+          <option value="lemon">Lemon</option>
+          <option value="coral">Coral</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:14px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:18px;">
+      <b style="font-size:13px;display:block;margin-bottom:8px;">First Round Question</b>
+      <div class="field" style="margin-top:0;">
+        <label>Question Prompt / Riddle</label>
+        <input type="text" id="new-q-text" placeholder="e.g. Which animal is known as the king of the jungle?">
+      </div>
+      <div class="field">
+        <label>Correct Answer (Green on correct tap)</label>
+        <input type="text" id="new-q-ans" placeholder="e.g. Lion">
+      </div>
+      <div class="field">
+        <label>Other Choices (3 wrong choices, comma-separated)</label>
+        <input type="text" id="new-q-wrong" placeholder="e.g. Elephant, Tiger, Bear">
+      </div>
+    </div>
+    <div style="margin-top: 24px; display: flex; gap: 10px;">
+      <button class="btn btn-dark" style="flex: 1; padding: 14px;" onclick="saveNewGame('${newId}')">Publish Game to App</button>
+      <button class="btn btn-white" style="padding: 14px 20px;" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+
+function saveNewGame(id) {
+  const name = document.getElementById('new-gname').value.trim();
+  const desc = document.getElementById('new-gdesc').value.trim();
+  const skill = document.getElementById('new-gskill').value;
+  const color = document.getElementById('new-gcolor').value;
+  const qText = document.getElementById('new-q-text').value.trim();
+  const qAns = document.getElementById('new-q-ans').value.trim();
+  const qWrong = document.getElementById('new-q-wrong').value.split(',').map(s => s.trim()).filter(Boolean);
+
+  if (!name) { toast('Please enter a game title'); return; }
+
+  const questions = [];
+  if (qText && qAns) {
+    const options = Array.from(new Set([qAns, ...qWrong]));
+    questions.push({ question: qText, answer: qAns, options });
+  }
+
+  draftConfig.games[id] = {
+    name,
+    desc: desc || 'Brain challenge',
+    skill,
+    color,
+    enabled: true,
+    questions
+  };
+
+  closeModal();
+  render();
+  toast('New game added to draft!');
+}
+
+function openGameEdit(id) {
+  const g = getGame(id);
+  const isCustom = !GAMES_CATALOG[id];
+  openModal(`
+    <div class="sheet-header">
+      <b>Edit · ${esc(g.name)}</b>
+      <button class="sheet-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="field">
+      <label>Game Title</label>
+      <input type="text" id="edit-gname" value="${esc(g.name)}">
+    </div>
+    <div class="field">
+      <label>Subtitle / Description</label>
+      <input type="text" id="edit-gdesc" value="${esc(g.desc || '')}">
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div class="field">
+        <label>Category</label>
+        <select id="edit-gskill" ${isCustom ? '' : 'disabled'}>
+          ${Object.entries(SKILLS).map(([k, v]) => `<option value="${k}" ${g.category === k ? 'selected' : ''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Color Theme</label>
+        <select id="edit-gcolor">
+          ${['lilac','peach','sky','mint','lemon','coral'].map(c => `<option value="${c}" ${g.color === c ? 'selected' : ''}>${c[0].toUpperCase() + c.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Enabled in app</label>
+      <label class="switch" style="margin-top: 6px;">
+        <input type="checkbox" id="edit-genabled" ${g.enabled ? 'checked' : ''}>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+        <b>Custom Questions (${g.questions.length})</b>
+        <button class="btn btn-white" style="font-size: 11px; padding: 6px 12px;" onclick="addQuestionPrompt('${id}')">+ Add Question</button>
+      </div>
+      <div style="max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
+        ${g.questions.map((q, qidx) => `
+          <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:8px 12px; border-radius:12px; font-size:12px;">
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:80%;">${esc(q.question || q.q)} (Ans: ${esc(q.answer || '')})</span>
+            <button style="border:0; background:none; cursor:pointer; color:#E5484D; font-weight:700;" onclick="removeQuestion('${id}', ${qidx})">✕</button>
+          </div>
+        `).join('') || '<p style="font-size:12px; color:var(--ink2);">No custom questions. Add one above.</p>'}
+      </div>
+    </div>
+    <div style="margin-top: 24px; display: flex; gap: 10px;">
+      <button class="btn btn-dark" style="flex: 1; padding: 14px;" onclick="saveGameEdit('${id}')">Save Changes</button>
+      ${isCustom ? `<button class="btn btn-white" style="color:#E5484D; padding: 14px 16px;" onclick="deleteCustomGame('${id}')">Delete</button>` : ''}
+      <button class="btn btn-white" style="padding: 14px 20px;" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+
+function addQuestionPrompt(id) {
+  const q = prompt('Question text:');
+  if (!q) return;
+  const a = prompt('Correct answer:');
+  if (!a) return;
+  const w = (prompt('Wrong options (comma-separated):') || '').split(',').map(s=>s.trim()).filter(Boolean);
+  const options = Array.from(new Set([a, ...w]));
+  draftConfig.games[id] = draftConfig.games[id] || {};
+  draftConfig.games[id].questions = draftConfig.games[id].questions || [];
+  draftConfig.games[id].questions.push({ question: q, answer: a, options });
+  openGameEdit(id);
+}
+
+function removeQuestion(id, qidx) {
+  if (draftConfig.games[id] && draftConfig.games[id].questions) {
+    draftConfig.games[id].questions.splice(qidx, 1);
+    openGameEdit(id);
+  }
+}
+
+function deleteCustomGame(id) {
+  if (!confirm('Delete this custom game?')) return;
+  delete draftConfig.games[id];
+  closeModal();
+  render();
+  toast('Custom game deleted from draft.');
+}
+
+function saveGameEdit(id) {
+  const name = document.getElementById('edit-gname').value.trim();
+  const desc = document.getElementById('edit-gdesc').value.trim();
+  const skill = document.getElementById('edit-gskill').value;
+  const color = document.getElementById('edit-gcolor').value;
+  const enabled = document.getElementById('edit-genabled').checked;
+
+  draftConfig.games[id] = draftConfig.games[id] || {};
+  draftConfig.games[id].name = name;
+  draftConfig.games[id].desc = desc;
+  draftConfig.games[id].skill = skill;
+  draftConfig.games[id].color = color;
+  draftConfig.games[id].enabled = enabled;
+
+  closeModal();
+  render();
+  toast('Game settings updated in draft.');
+}
+
+/* Sponsor Editor Modal */
+function openSponsorEdit(idx) {
+  const sp = draftConfig.ads.list[idx];
+  if (!sp) return;
+  openSponsorForm(idx, sp, 'Edit Sponsor');
+}
+
+function openNewSponsor() {
+  const newSp = {
+    name: '',
+    text: '',
+    slots: ['home'],
+    start: new Date().toISOString().split('T')[0],
+    end: '',
+    enabled: true,
+    logoLetter: 'S'
+  };
+  openSponsorForm(-1, newSp, 'New Sponsor');
+}
+
+function openSponsorForm(idx, sp, title) {
+  openModal(`
+    <div class="sheet-header">
+      <b>${title}</b>
+      <button class="sheet-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="field">
+      <label>Sponsor Name</label>
+      <input type="text" id="sp-name" value="${esc(sp.name || '')}" placeholder="e.g. Sample Tuition Centre">
+    </div>
+    <div class="field">
+      <label>Description / Tagline</label>
+      <input type="text" id="sp-text" value="${esc(sp.text || '')}" placeholder="e.g. Sponsor slot: learning that sparks joy">
+    </div>
+    <div class="field">
+      <label>Target Website URL (https://)</label>
+      <input type="url" id="sp-url" value="${esc(sp.url || '')}" placeholder="https://example.com">
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div class="field">
+        <label>Logo Letter (1 letter or leave empty for icon)</label>
+        <input type="text" id="sp-letter" maxlength="2" value="${esc(sp.logoLetter || '')}" placeholder="e.g. S">
+      </div>
+      <div class="field">
+        <label>Logo Image URL (Optional)</label>
+        <input type="url" id="sp-logo" value="${esc(sp.logo || '')}" placeholder="https://...">
+      </div>
+    </div>
+    <div class="field">
+      <label>Start Date</label>
+      <input type="date" id="sp-start" value="${esc(sp.start || '')}">
+    </div>
+    <div class="field">
+      <label>End Date</label>
+      <input type="date" id="sp-end" value="${esc(sp.end || '')}">
+    </div>
+    <div style="margin-top: 24px; display: flex; gap: 10px;">
+      <button class="btn btn-dark" style="flex: 1; padding: 14px;" onclick="saveSponsorForm(${idx})">Save Sponsor</button>
+      <button class="btn btn-white" style="padding: 14px 20px;" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+
+function saveSponsorForm(idx) {
+  const name = document.getElementById('sp-name').value.trim();
+  const text = document.getElementById('sp-text').value.trim();
+  const url = document.getElementById('sp-url').value.trim();
+  const logoLetter = document.getElementById('sp-letter').value.trim().toUpperCase();
+  const logo = document.getElementById('sp-logo').value.trim();
+  const start = document.getElementById('sp-start').value;
+  const end = document.getElementById('sp-end').value;
+
+  if (!name) { toast('Please enter a sponsor name'); return; }
+
+  const payload = { name, text, url, logoLetter, logo, start, end };
+  if (idx >= 0) {
+    draftConfig.ads.list[idx] = Object.assign(draftConfig.ads.list[idx], payload);
+  } else {
+    draftConfig.ads.list.push(Object.assign({ enabled: true, slots: ['home'] }, payload));
+  }
+  closeModal();
+  render();
+  toast('Sponsor saved to draft.');
+}
+
+function openRewardsModal() {
+  openModal(`
+    <div class="sheet-header">
+      <b>Rewards & Milestones</b>
+      <button class="sheet-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="field">
+      <label>Stars per correct answer</label>
+      <input type="number" id="rew-per" value="${draftConfig.rewards.per || 1}">
+    </div>
+    <div class="field">
+      <label>Perfect-game bonus</label>
+      <input type="number" id="rew-bonus" value="${draftConfig.rewards.bonus || 2}">
+    </div>
+    <div style="margin-top: 24px;">
+      <button class="btn btn-dark" style="width: 100%; padding: 14px;" onclick="saveRewards()">Save Rewards</button>
+    </div>
+  `);
+}
+
+function saveRewards() {
+  draftConfig.rewards.per = +document.getElementById('rew-per').value || 1;
+  draftConfig.rewards.bonus = +document.getElementById('rew-bonus').value || 2;
+  closeModal();
+  render();
+  toast('Rewards updated in draft.');
+}
+
+function openMaintenanceModal() {
+  const on = draftConfig.maintenance.on;
+  openModal(`
+    <div class="sheet-header">
+      <b>Maintenance Kill-Switch</b>
+      <button class="sheet-close" onclick="closeModal()">✕</button>
+    </div>
+    <p class="desc-text">When activated, kids apps will display a friendly maintenance screen.</p>
+    <div class="field" style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+      <label style="margin:0; font-size:15px;">Maintenance Active</label>
+      <label class="switch">
+        <input type="checkbox" id="maint-on" ${on ? 'checked' : ''}>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div style="margin-top: 24px;">
+      <button class="btn btn-dark" style="width: 100%; padding: 14px;" onclick="saveMaintenance()">Save Status</button>
+    </div>
+  `);
+}
+
+function saveMaintenance() {
+  draftConfig.maintenance.on = document.getElementById('maint-on').checked;
+  closeModal();
+  render();
+  toast('Maintenance state updated in draft.');
+}
+
+function downloadBackup() {
+  const blob = new Blob([JSON.stringify(draftConfig, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `brain-playground-config-${Date.now()}.json`;
+  a.click();
+}
+
+function resetToBuiltin() {
+  if (!confirm('Reset all drafts to default?')) return;
+  draftConfig = clone(INITIAL_DEMO_CONFIG);
+  render();
+  toast('Drafts reset.');
+}
+
+/* ----------------- PUBLISH & DISCARD ----------------- */
+
+const A = {
+  publish: async () => {
+    busy = true;
+    updateUnpubBar();
+    toast('Publishing changes…');
+
+    try {
+      // 1. Try local server API
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draftConfig)
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.config) {
+          baseConfig = clone(json.config);
+          draftConfig = clone(json.config);
+        }
+      } else {
+        throw new Error('Local save failed');
+      }
+    } catch (e) {
+      // Fallback in-memory
+      baseConfig = clone(draftConfig);
+      baseConfig.rev = (baseConfig.rev || 0) + 1;
+      const now = new Date();
+      baseConfig.lastPublished = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + 
+        now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      draftConfig.lastPublished = baseConfig.lastPublished;
+    }
+
+    // 2. Also publish to Supabase if configured
+    if (!isDemoMode && sb) {
+      try {
+        const { error } = await sb.from('app_config').upsert({ id: 'main', data: baseConfig, updated_at: new Date().toISOString() });
+        if (error) {
+          console.warn('Supabase upsert error:', error);
+          toast('Saved locally, but Supabase write failed: ' + (error.message || error.code));
+        } else {
+          toast('Published! Synced to Supabase Cloud & Local Apps.');
+        }
+      } catch (err) {
+        console.warn('Supabase publish exception:', err);
+      }
+    } else {
+      toast('Published! All mobile and web apps synced.');
+    }
+    render();
+  },
+  discard: () => {
+    if (!confirm('Throw away all unpublished changes?')) return;
+    draftConfig = clone(baseConfig);
+    toast('Unpublished changes discarded.');
+    render();
+  }
+};
+
+window.A = A;
+window.setTab = setTab;
+window.setGameFilter = setGameFilter;
+window.toggleGame = toggleGame;
+window.toggleMasterAds = toggleMasterAds;
+window.togglePauseSponsor = togglePauseSponsor;
+window.deleteSponsor = deleteSponsor;
+window.updateNotice = updateNotice;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.openGameEdit = openGameEdit;
+window.saveGameEdit = saveGameEdit;
+window.openSponsorEdit = openSponsorEdit;
+window.openNewSponsor = openNewSponsor;
+window.saveSponsorForm = saveSponsorForm;
+window.openRewardsModal = openRewardsModal;
+window.saveRewards = saveRewards;
+window.openMaintenanceModal = openMaintenanceModal;
+window.saveMaintenance = saveMaintenance;
+window.downloadBackup = downloadBackup;
+window.resetToBuiltin = resetToBuiltin;
+
+/* Initial Fetch from /api/config */
+async function initData() {
+  try {
+    const res = await fetch('/api/config');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.games) {
+        baseConfig = clone(data);
+        draftConfig = clone(data);
+      }
+    }
+  } catch (e) {
+    console.warn('Could not load /api/config, using demo data', e);
+  }
+  render();
+}
+
+initData();
+</script>
+</body>
+</html>

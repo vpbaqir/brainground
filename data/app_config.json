@@ -1,0 +1,118 @@
+{
+  "rev": 42,
+  "lastPublished": "5 Oct 2026, 18:07",
+  "announcement": "⚡ Brain Tip: Read carefully and look for hidden patterns before tapping!",
+  "ads": {
+    "enabled": true,
+    "list": [
+      {
+        "enabled": true,
+        "slots": [
+          "home"
+        ],
+        "name": "chatgpt",
+        "text": "ai",
+        "url": "https://chatgpt.com",
+        "logoLetter": "",
+        "logo": "https://picsum.photos/200/300",
+        "start": "2026-10-02",
+        "end": "2026-10-31"
+      }
+    ]
+  },
+  "games": {
+    "p": {
+      "name": "hool",
+      "enabled": true,
+      "questions": [
+        {
+          "q": "What comes next?"
+        }
+      ]
+    },
+    "e": {
+      "name": "Echo",
+      "enabled": true,
+      "questions": []
+    },
+    "m": {
+      "name": "Number chef",
+      "enabled": true,
+      "questions": []
+    },
+    "o": {
+      "name": "Sharp eye",
+      "enabled": true,
+      "questions": []
+    },
+    "k": {
+      "name": "Memory match",
+      "enabled": true,
+      "questions": []
+    },
+    "l": {
+      "name": "Logic clues",
+      "enabled": true,
+      "questions": []
+    },
+    "cg_muv6kl2c": {
+      "name": "koya",
+      "desc": "ads",
+      "skill": "r",
+      "color": "mint",
+      "enabled": true,
+      "questions": [
+        {
+          "question": "koya?",
+          "answer": "ya",
+          "options": [
+            "ya",
+            "no",
+            "lla",
+            "laa"
+          ]
+        }
+      ]
+    },
+    "cg_muv71z83": {
+      "name": "adsf",
+      "desc": "dasfds",
+      "skill": "r",
+      "color": "peach",
+      "enabled": true,
+      "questions": [
+        {
+          "question": "adsf",
+          "answer": "afDSf",
+          "options": [
+            "afDSf",
+            "adsf"
+          ]
+        }
+      ]
+    }
+  },
+  "rewards": {
+    "per": 1,
+    "bonus": 2,
+    "daily": 2,
+    "ms": [
+      {
+        "d": 3,
+        "s": 5
+      },
+      {
+        "d": 7,
+        "s": 15
+      }
+    ]
+  },
+  "maintenance": {
+    "on": false,
+    "msg": ""
+  },
+  "noticeEnabled": true,
+  "noticeColor": "sky",
+  "noticeMode": "popup",
+  "dailyGame": ""
+}

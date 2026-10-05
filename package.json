@@ -1,0 +1,17 @@
+{
+  "name": "kids-repo",
+  "version": "1.0.0",
+  "description": "Brain Playground Kids App and Admin Panel",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "brain-games",
+    "kids-education",
+    "mini-games"
+  ],
+  "author": "",
+  "license": "MIT"
+}
