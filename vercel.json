@@ -2,10 +2,10 @@
   "version": 2,
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/", "destination": "/app/src/main/assets/index.html" },
-    { "source": "/game", "destination": "/app/src/main/assets/index.html" },
     { "source": "/admin", "destination": "/docs/index.html" },
-    { "source": "/privacy", "destination": "/docs/privacy.html" }
+    { "source": "/docs", "destination": "/docs/index.html" },
+    { "source": "/privacy", "destination": "/docs/privacy.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
