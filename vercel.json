@@ -2,10 +2,11 @@
   "version": 2,
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/admin", "destination": "/docs/index.html" },
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/admin/(.*)", "destination": "/admin/index.html" },
     { "source": "/docs", "destination": "/docs/index.html" },
-    { "source": "/privacy", "destination": "/docs/privacy.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/docs/(.*)", "destination": "/docs/index.html" },
+    { "source": "/privacy", "destination": "/privacy.html" }
   ],
   "headers": [
     {
