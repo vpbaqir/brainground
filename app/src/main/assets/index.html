@@ -51,19 +51,13 @@ h1,h2,h3,p{margin:0}
 .chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
 button{font-family:var(--font);color:var(--ink)}
 .bad{display:flex;gap:12px;align-items:center;padding:14px 16px;border-radius:20px;background:#fff;margin-bottom:10px}
-.bad.lock{opacity:.4}.bad i{width:36px;height:36px;border-radius:50%;background:var(--lemon);flex:none;display:grid;place-items:center;font-size:18px}
-.bar{height:14px;border-radius:9px;background:#E3E3E8;margin:6px 0 14px;overflow:hidden}.bar i{display:block;height:100%;border-radius:999px;background:var(--lilac);transition:width .4s ease}
+.bad.lock{opacity:.4}.bad i{width:36px;height:36px;border-radius:50%;background:var(--lemon);flex:none}
+.bar{height:14px;border-radius:9px;background:#E3E3E8;margin:6px 0 14px;overflow:hidden}.bar i{display:block;height:100%;border-radius:9px;background:var(--lilac)}
 input{color:var(--ink);background:#fff;font:700 22px var(--font);padding:14px;border-radius:20px;border:1px solid #E3E3E8;width:100%;text-align:center;margin:14px 0}
-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom));width:min(320px,calc(100% - 36px));background:var(--ink);border-radius:999px;padding:6px 10px;display:flex;justify-content:space-around;align-items:center;z-index:5;box-shadow:0 12px 30px rgba(20,21,31,.35)}
-nav button{height:46px;border-radius:999px;border:0;background:none;color:#B9BBC9;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:0 12px;font:700 13px var(--font);transition:all .15s}
+nav{position:fixed;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom));width:min(300px,calc(100% - 36px));background:var(--ink);border-radius:999px;padding:8px;display:flex;justify-content:space-around;z-index:5}
+nav button{width:50px;height:50px;border-radius:50%;border:0;background:none;color:#B9BBC9;display:grid;place-items:center;cursor:pointer}
 nav button[aria-current=page]{background:#fff;color:var(--ink)}
 svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.hero-quest{border-radius:32px;padding:24px;box-shadow:0 14px 34px -8px rgba(183,163,255,.55);position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.5)}
-.game-icon{font-size:26px;display:inline-block;padding:6px;background:rgba(255,255,255,.7);border-radius:16px;line-height:1}
-.game-buddy{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E3E3E8;border-radius:999px;padding:8px 16px;margin:12px auto;width:fit-content;box-shadow:0 4px 14px rgba(20,21,31,.04);font-size:13px;font-weight:700;animation:bpFade .2s ease-out}
-.streak-bubble{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#fff;font-size:13px;font-weight:800;border:1.5px solid #E3E3E8}
-.streak-bubble.chk{background:var(--mint);border-color:var(--mint);color:#083818}
-.progress-card{background:#fff;border-radius:24px;padding:20px;border:1px solid #E3E3E8;margin:16px 0}
 .pin-backdrop{position:fixed;inset:0;background:rgba(20,21,31,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:grid;place-items:center;padding:20px;z-index:9999;animation:bpFade .2s ease-out}
 .pin-sheet{background:#fff;border-radius:32px;padding:28px 24px;width:min(380px,100%);box-shadow:0 24px 60px -12px rgba(20,21,31,.35);text-align:center;animation:bpSlide .25s cubic-bezier(.16,1,.3,1)}
 .pin-icon{width:56px;height:56px;border-radius:20px;background:var(--peach);display:grid;place-items:center;margin:0 auto 16px;color:var(--ink)}
@@ -74,7 +68,6 @@ svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-l
 .pin-err{color:#E5484D;font-size:12px;font-weight:700;min-height:18px;margin-bottom:12px}
 .pin-btns{display:flex;gap:10px}
 .pin-btns .btn{flex:1;min-height:48px;padding:12px;font-size:15px;border-radius:999px}
-@keyframes bpBounce{0%{transform:scale(.85)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
 @keyframes bpFade{from{opacity:0}to{opacity:1}}
 @keyframes bpSlide{from{transform:scale(.92) translateY(12px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -191,18 +184,9 @@ function lvFor(id){const l=gLim(id);if(l.fix)return l.fix;if(!S.played[id]&&l.st
 function lvAdj(id,ok,N,o){const l=gLim(id),r=LR(),p=100*ok/N;if(l.fix)return o;if(p>=r.up)return Math.min(l.max,o+1);if(p<=r.down)return Math.max(1,o-1);return o}
 function okCfg(d){return !!d&&typeof d==='object'&&(!d.games||typeof d.games==='object')&&(!d.ads||typeof d.ads==='object');}
 const COL=['lilac','peach','sky','mint','lemon','coral'];
-const SK_COL={r:'lilac',m:'peach',a:'mint',f:'sky',l:'coral',s:'lemon'};
-const G_ICONS={
-  p:'🔍 🔷',e:'🔔 🎶',m:'🍳 🔢',o:'👁️ ⚡',
-  k:'🃏 ✨',l:'🕵️ 💡',c:'🎨 🔴',w:'📚 🔤',
-  q:'📐 🔺',b:'⚖️ 💎',d:'🔎 🍎',g:'⚡ 7️⃣',
-  h:'🎩 🐇',z:'🔄 🎵',t:'⏱️ ➕',u:'🎯 🎯',
-  v:'⚖️ ➕',n:'👀 🎲',a:'✏️ 🅰️',s:'🪞 🔲'
-};
-function gameIcon(id){return remote.games?.[id]?.icon||G_ICONS[id]||'🧠 ⭐'}
 function gameOrder(){const remoteKeys=Object.keys(remote.games||{});const k=Array.from(new Set([...Object.keys(G),...remoteKeys]));const o=id=>{const v=remote.games?.[id]?.order;return v!==''&&v!=null&&Number.isFinite(+v)?+v:k.indexOf(id)+1};return k.slice().sort((a,b)=>o(a)-o(b)||k.indexOf(a)-k.indexOf(b))}
 function gameSkill(id){return remote.games?.[id]?.skill||G[id]?.s||'r'}
-const gcol=id=>COL.includes(remote.games?.[id]?.color)?remote.games[id].color:(SK_COL[gameSkill(id)]||G[id]?.c||'lilac');
+const gcol=id=>COL.includes(remote.games?.[id]?.color)?remote.games[id].color:(G[id]?.c||'lilac');
 const gRounds=id=>{const n=Math.round(+remote.games?.[id]?.rounds);return n>=3&&n<=10?n:5};
 function R(){const x=remote.rewards||{},n=(v,d,lo,hi)=>v!==''&&v!=null&&Number.isFinite(+v)?Math.min(hi,Math.max(lo,+v)):d;return{per:n(x.per,1,0,10),bonus:n(x.bonus,2,0,20),daily:n(x.daily,2,1,5),ms:Array.isArray(x.ms)&&x.ms.length?x.ms.filter(m=>m&&+m.d>0&&+m.s>=0).map(m=>[+m.d,+m.s]):[[3,5],[7,15],[14,30]]}}
 let W0=null,OW0=null;
@@ -231,206 +215,29 @@ function playSfx(t){if(!S.sound)return;try{const c=getAudioCtx();if(!c)return;co
 const dailyId=()=>{if(remote.dailyGame&&gameEnabled(remote.dailyGame))return remote.dailyGame;const k=Object.keys(G);return k[Math.floor(Date.now()/864e5)%k.length]};
 const streak=()=>S.last===D||S.last===Y?S.streak:0;
 function go(v){tok++;view=v;gate=false;render()}
-function render(){
-  applyWords();
-  if(remote.maintenance?.on){
-    $('#v').innerHTML='<div style="text-align:center;padding:40px 10px"><div style="font-size:56px">🛠️</div><h1 class="disp" style="margin-top:14px">Back Soon</h1><p class="sm" style="margin-top:8px">'+clean(remote.maintenance.msg||'We are making Brain Playground better.')+'</p></div>';
-    $('#nav').style.display='none';
-    return;
-  }
-  $('#v').innerHTML=V[S.name?view:'wel']();
-  $('#nav').style.display=S.name?'flex':'none';
-  $('#nav').innerHTML=[['home',ic.home,'Home'],['rew',ic.star,'Rewards'],['par',ic.lock,'Parents']].map(([k,i,l])=>{
-    const isCur=view===k||(k==='home'&&view==='game');
-    return `<button aria-label="${l}" ${isCur?'aria-current="page"':''} onclick="go('${k}')">${i}${isCur?`<span>${l}</span>`:''}</button>`;
-  }).join('');
-  window.scrollTo(0,0);
-}
+function render(){applyWords();if(remote.maintenance?.on){$('#v').innerHTML='<h1 class="disp" style="margin-top:36px">Back soon</h1><p class="sm" style="margin-top:8px">'+clean(remote.maintenance.msg||'We are making Brain Playground better.')+'</p>';$('#nav').style.display='none';return}$('#v').innerHTML=V[S.name?view:'wel']();$('#nav').style.display=S.name?'':'none';$('#nav').innerHTML=[['home',ic.home,'Home'],['rew',ic.star,'Rewards'],['par',ic.lock,'Parents']].map(([k,i,l])=>`<button aria-label="${l}" ${view===k||(k==='home'&&view==='game')?'aria-current="page"':''} onclick="go('${k}')">${i}</button>`).join('');window.scrollTo(0,0)}
 const V={
-home(){
-  const d=dailyId(),lv=Math.round(Object.values(S.lv).reduce((a,b)=>a+b)/Object.keys(S.lv).length);
-  const isNoticeOn = remote.noticeEnabled !== false && !!remote.announcement;
-  const noticeMode = remote.noticeMode || 'both';
-  const showBanner = isNoticeOn && (noticeMode === 'both' || noticeMode === 'banner');
-  const noticeColor = remote.noticeColor || 'lemon';
-  return`<div class="hd">
-    <div>
-      <span class="chip" style="font-size:11px;background:#EDEBF3;color:var(--ink2);margin-bottom:4px;padding:3px 10px">🧠 Brain Explorer</span>
-      <b style="font-size:24px;letter-spacing:-.02em">Hello, ${S.name}! 👋</b>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="ib" aria-label="Sound" onclick="S.sound=!S.sound;save();render()">${S.sound?'🔊':'🔇'}</button>
-      <button class="ib" aria-label="Streak" onclick="go('str')">${ic.flame}</button>
-    </div>
-  </div>
-  <div class="card ${gcol(d)} hero-quest" style="margin-top:18px">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <span class="chip dk" style="font-size:11px;letter-spacing:.05em;text-transform:uppercase">⚡ TODAY'S BRAIN QUEST</span>
-      <span class="chip" style="background:#FFE86B;color:#3A3000;font-weight:800">⭐ 2× STARS</span>
-    </div>
-    <div style="margin:14px 0 10px">
-      <span style="font-size:32px;display:block;margin-bottom:4px">${gameIcon(d)}</span>
-      <h2 class="disp" style="font-size:28px">${gameName(d)}</h2>
-      <p class="sm" style="color:var(--ink);font-weight:600;margin-top:4px">${gameDesc(d)}</p>
-    </div>
-    <button class="btn" style="width:100%;font-size:17px;min-height:54px;box-shadow:0 8px 20px rgba(20,21,31,0.2)" onclick="startGame('${d}')">Play Quest Now 🚀</button>
-  </div>
-  <div class="stats" style="margin-top:14px">
-    <div class="card mint" style="display:flex;align-items:center;gap:10px;padding:12px 14px">
-      <span style="font-size:24px">⭐</span>
-      <div><small>Stars</small><b>${S.stars}</b></div>
-    </div>
-    <div class="card peach" style="display:flex;align-items:center;gap:10px;padding:12px 14px">
-      <span style="font-size:24px">🔥</span>
-      <div><small>Streak</small><b>${streak()}d</b></div>
-    </div>
-    <div class="card sky" style="display:flex;align-items:center;gap:10px;padding:12px 14px">
-      <span style="font-size:24px">🧠</span>
-      <div><small>Level</small><b>${lv}</b></div>
-    </div>
-  </div>
-  <h3 class="ttl" style="margin:26px 0 12px">Pick a Game</h3>
-  <div class="chips">${['all',...Object.keys(SK)].map(k=>`<button class="chip ${flt===k?'dk':''}" style="border:0;cursor:pointer;font-family:inherit;flex:none;padding:10px 16px" onclick="flt='${k}';render()">${k==='all'?'All':SK[k]}</button>`).join('')}</div>
-  <div class="bento">${gameOrder().filter(k=>gameEnabled(k)&&(flt==='all'||gameSkill(k)===flt)).map(k=>`<button class="card gc ${gcol(k)}" onclick="startGame('${k}')">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <span class="game-icon">${gameIcon(k)}</span>
-      <span class="chip">Level ${S.lv[k]||1}</span>
-    </div>
-    <div style="margin-top:10px">
-      <b>${gameName(k)}</b>
-      <p class="sm" style="color:var(--ink);margin-top:4px">${gameDesc(k)}</p>
-    </div>
-  </button>`).join('')}</div>
-  ${showBanner?`<div class="card ${noticeColor}" style="margin-top:18px;border-radius:22px;padding:16px 20px;box-shadow:0 4px 16px rgba(0,0,0,0.03)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:16px">📢</span><b style="font-size:13px;text-transform:uppercase;letter-spacing:.04em;opacity:.85">Notice</b></div><p class="sm" style="color:var(--ink);font-weight:600;line-height:1.4">${clean(remote.announcement)}</p></div>`:''}
-  ${sponsorHtml('home')}`
-},
-wel(){
-  return`<div style="text-align:center;padding:26px 8px 16px">
-    <div style="font-size:68px;margin-bottom:12px;animation:bpBounce 1s infinite alternate">🧠✨</div>
-    <span class="chip dk" style="margin-bottom:12px;padding:6px 14px;letter-spacing:.04em;text-transform:uppercase">Brain Playground</span>
-    <h1 class="disp" style="font-size:32px;line-height:1.15;margin-top:6px">Ready to make your<br>brain stronger?</h1>
-    <p class="sm" style="font-size:14px;color:var(--ink);margin:12px auto 24px;max-width:320px;line-height:1.5">
-      Play fast daily mini-games, earn stars, and unlock brain superpowers!
-    </p>
-    <div class="card white" style="padding:22px 18px;border-radius:28px;border:1px solid #E3E3E8;box-shadow:0 12px 32px -8px rgba(20,21,31,.08)">
-      <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px;color:var(--ink2);text-transform:uppercase;letter-spacing:.04em">What is your name?</label>
-      <input id="nm" maxlength="14" placeholder="Your name" aria-label="Your name" style="margin:8px 0 16px;font-size:22px">
-      <button class="btn" style="width:100%;font-size:17px;min-height:54px" onclick="setName()">Let's Play! 🚀</button>
-      <button class="btn lt" style="width:100%;margin-top:10px;font-size:14px;min-height:46px" onclick="setName('Guest')">Play as Guest</button>
-    </div>
-  </div>`;
-},
-str(){
-  const w=Array.from({length:7},(_,i)=>new Date(Date.now()-(6-i)*864e5).toLocaleDateString('en-CA'));
-  const nextMilestone = R().ms.find(([n]) => streak() < n) || [30, 50];
-  return`<div class="hd"><button class="ib" aria-label="Back" onclick="go('home')">${ic.back}</button><b style="font-size:17px">Daily Streak</b><div style="width:44px"></div></div>
-  <div class="card peach" style="margin-top:18px;text-align:center;padding:28px 20px;border-radius:32px">
-    <span style="font-size:42px;display:block">🔥</span>
-    <span class="chip dk" style="margin-top:6px">Active Streak</span>
-    <div class="big" style="margin:6px 0;font-size:68px">${streak()} <span style="font-size:28px;opacity:.8">Days</span></div>
-    <p class="sm" style="color:var(--ink);font-weight:700">Best Record: ${S.best} days</p>
-    <div style="margin-top:12px;background:rgba(255,255,255,.6);padding:8px 16px;border-radius:999px;display:inline-block;font-size:13px;font-weight:700">
-      🎯 Next Milestone: ${nextMilestone[0]} days (+${nextMilestone[1]} ⭐)
-    </div>
-  </div>
-  <div class="seq" style="gap:8px;margin:20px 0">${w.map(d=>{
-    const has=S.days.includes(d);
-    return`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1"><span style="font-size:11px;font-weight:700;color:var(--ink2)">${new Date(d).toLocaleDateString('en',{weekday:'narrow',timeZone:'UTC'})}</span><div class="streak-bubble ${has?'chk':''}">${has?'✓':'○'}</div></div>`;
-  }).join('')}</div>
-  <h3 class="ttl">Streak Milestones</h3>
-  ${R().ms.map(([n,x])=>{
-    const c=S.claimed.includes(n),ok=streak()>=n;
-    return`<div class="bad ${ok||c?'':'lock'}"><i>🏅</i><div style="flex:1"><b>${n} days streak</b><p class="sm">+${x} bonus stars</p></div>${c?'<span class="chip">Claimed</span>':ok?`<button class="btn" style="min-height:40px;padding:8px 16px" onclick="claim(${n},${x})">Claim ⭐</button>`:'<span class="chip dk">Locked</span>'}</div>`;
-  }).join('')}`;
-},
-game(){
-  return`<div class="hd">
-    <button class="ib" aria-label="Back" onclick="go('home')">${ic.back}</button>
-    <div class="dots">${Array.from({length:g.N},(_,i)=>i).map(i=>`<i class="${i<g.r?'d':''}"></i>`).join('')}</div>
-    <span class="chip dk">Lv ${g.L}</span>
-  </div>
-  <div class="game-buddy" id="buddy">🧠 <span id="buddy-msg">Think carefully!</span></div>
-  <h2 class="ttl" style="margin-bottom:0;text-align:center">${gameName(g.id)}</h2>
-  <p class="sm" style="margin-top:6px;text-align:center">${clean(gameInstructions(g.id))}</p>
-  ${(G[g.id]&&G[g.id].lg)?`<div style="text-align:center;margin-top:10px"><button class="chip dk" style="border:0;cursor:pointer;padding:8px 16px;font-size:12px" onclick="cyc()">🌐 ${LN[S.lang]}</button></div>`:''}
-  <div id="body"></div>
-  <p id="msg"></p>`;
-},
-res(){
-  const isPerfect = g.ok === g.N;
-  const isGreat = g.ok >= Math.ceil(g.N * 0.6);
-  return`<div class="card ${gcol(g.id)}" style="margin-top:20px;text-align:center;padding:32px 20px;border-radius:36px;box-shadow:0 16px 36px -10px rgba(0,0,0,0.12)">
-    <div style="font-size:56px;animation:bpBounce .6s cubic-bezier(.17,.89,.32,1.49)">${isPerfect ? '🏆' : isGreat ? '🎉' : '👏'}</div>
-    <span class="chip dk" style="margin-top:8px">${gameName(g.id)}</span>
-    <h1 class="disp" style="margin:10px 0 4px;font-size:30px">${isPerfect ? 'PERFECT ROUND!' : isGreat ? 'AWESOME JOB!' : 'KEEP GOING!'}</h1>
-    <div class="big" style="margin:8px 0;font-size:62px">${g.ok} <span style="font-size:28px;opacity:.6">/ ${g.N}</span></div>
-    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.75);padding:8px 20px;border-radius:999px;margin:6px 0 12px">
-      <span style="font-size:20px">⭐</span>
-      <b style="font-size:18px">+${g.stars} Stars</b>
-    </div>
-    <p class="sm" style="color:var(--ink);font-weight:600;font-size:14px;max-width:280px;margin:0 auto">${g.note}</p>
-    ${g.nb.map(b=>`<p style="margin-top:12px"><span class="chip dk" style="padding:8px 16px;font-size:13px">🏅 New Badge: ${b}</span></p>`).join('')}
-  </div>
-  ${sponsorHtml('result')}
-  <div style="display:grid;gap:12px;margin-top:20px">
-    <button class="btn" style="min-height:54px" onclick="startGame('${g.id}')">Play Again 🔄</button>
-    <button class="btn lt" style="min-height:50px" onclick="go('home')">Home ⌂</button>
-  </div>`;
-},
-rew(){
-  const nextStars = [50, 100, 200, 500].find(s => S.stars < s) || 1000;
-  const starPct = Math.min(100, Math.round(100 * S.stars / nextStars));
-  return`<div class="hd"><div><h1 class="disp" style="font-size:28px">Rewards</h1><p class="sm">Earn stars to unlock new badges!</p></div><div style="font-size:32px">🏆</div></div>
-  <div class="card lemon" style="margin-top:18px;border-radius:28px;padding:20px">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <b>⭐ Next Star Goal</b>
-      <span class="chip dk">${S.stars} / ${nextStars} ⭐</span>
-    </div>
-    <div class="bar" style="background:rgba(0,0,0,.1);margin:10px 0 4px"><i style="width:${starPct}%;background:var(--ink)"></i></div>
-    <p class="sm" style="color:var(--ink);font-weight:600;font-size:12px">${nextStars - S.stars} more stars until your next milestone!</p>
-  </div>
-  <div class="stats" style="margin-top:14px">
-    <div class="card mint"><small>Total Stars</small><b>${S.stars}</b></div>
-    <div class="card peach"><small>Day Streak</small><b>${streak()}d</b></div>
-    <div class="card sky"><small>Badges</small><b>${S.badges.length} / ${B.length}</b></div>
-  </div>
-  <h3 class="ttl" style="margin:24px 0 12px">Your Badge Collection</h3>
-  ${B.map((b,i)=>{
-    const unlocked = S.badges.includes(b[0]);
-    return`<div class="bad ${unlocked?'':'lock'}">
-      <i>${unlocked ? '🏅' : '🔒'}</i>
-      <div style="flex:1">
-        <b>${clean(remote.badges?.[i]?.name||b[0])}</b>
-        <p class="sm">${clean(remote.badges?.[i]?.desc||b[1])}</p>
-      </div>
-      ${unlocked ? '<span class="chip" style="background:var(--mint);color:#083818">Unlocked</span>' : '<span class="chip dk">Locked</span>'}
-    </div>`;
-  }).join('')}`;
-},
-par(){
-  if(!S.pin||pg.ch)return`<h1 class="disp">Set Parent PIN</h1><p class="sm" style="margin-top:8px">Choose a 4-digit PIN. Recovery question: what is your favourite food?</p><div class="card white" style="margin-top:18px"><input id="p1" type="password" inputmode="numeric" maxlength="4" placeholder="4-digit PIN" aria-label="PIN"><input id="ra" placeholder="Recovery answer" aria-label="Recovery answer"><button class="btn" onclick="setPin()">Save PIN</button><p id="pe" class="sm" style="margin-top:10px;text-align:center"></p></div>`;
-  if(!gate)return`<h1 class="disp">Parent Corner</h1><p class="sm" style="margin-top:8px">${pg.fg?'Recovery question: what is your favourite food?':'Grown-ups only. Enter your 4-digit PIN.'}</p><div class="card white" style="margin-top:18px"><input id="gi" ${pg.fg?'':'type="password" inputmode="numeric" maxlength="4"'} aria-label="Answer"><button class="btn" onclick="${pg.fg?'recover()':'tryPin()'}">Enter Dashboard</button><p id="pe" class="sm" style="margin-top:10px;text-align:center"></p><p class="sm" style="text-align:center;margin-top:10px"><a href="#" onclick="pg.fg=!pg.fg;render();return false">${pg.fg?'Use PIN':'Forgot PIN?'}</a></p></div>`;
-  const tips={r:'Spotting rules in number patterns builds logical thinking.',m:'Recalling sequences strengthens working memory.',a:'Missing-number puzzles build number sense and mental maths.',f:'Finding tiny differences trains attention and visual focus.',l:'Unscrambling words builds vocabulary and spelling.',s:'Flipping shapes in the mind builds spatial thinking.'};
-  return`<div class="hd"><div><h1 class="disp" style="font-size:28px">Parent Dashboard</h1><p class="sm">Learning progress & adult controls</p></div><button class="ib" onclick="gate=false;go('home')">✕</button></div>
-  <div class="card white" style="margin-top:16px;padding:16px 20px;border:1px solid #E3E3E8;border-radius:24px">
-    <b style="font-size:14px;letter-spacing:-.01em">📡 Live Sync & Cloud Status</b>
-    <p class="sm" style="margin-top:6px">${cloudReady()?'☁️ <b>Cloud Sync</b>: Connected to Supabase':'☁️ <b>Cloud Sync</b>: Not configured (Local / Offline mode)'}</p>
-    <p class="sm" style="margin-top:3px">${localSyncReady()?'⚡ <b>Local Dev Server</b>: Active (Live SSE on localhost:3001)':'⚡ <b>Local Dev Server</b>: Inactive'}</p>
-  </div>
-  <h3 class="ttl" style="margin:22px 0 10px">Cognitive Skill Breakdown</h3>
-  ${Object.keys(SK).map(k=>{
-    const[o,t]=S.sk[k],p=t?Math.round(100*o/t):0;
-    return`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"><b>${SK[k]}</b><span>${p}% (${t} rounds)</span></div><div class="bar" style="margin:6px 0 4px"><i style="width:${p}%;background:var(--${SK_COL[k]||'lilac'})"></i></div><p class="sm" style="margin:0 0 10px;font-size:12px">${tips[k]}</p></div>`;
-  }).join('')}
-  <h3 class="ttl" style="margin:22px 0 10px">Settings & Controls</h3>
-  <div style="display:grid;gap:10px">
-    <button class="btn lt" style="text-align:left;display:flex;justify-content:space-between;padding:14px 20px" onclick="chName()"><span>Child Profile Name</span><b>${S.name} ›</b></button>
-    <button class="btn lt" style="text-align:left;display:flex;justify-content:space-between;padding:14px 20px" onclick="pg.ch=1;render()"><span>Change Parent PIN</span><b>›</b></button>
-    <button class="btn lt" style="text-align:left;display:flex;justify-content:space-between;padding:14px 20px" onclick="S.sound=!S.sound;save();render()"><span>Sound Effects</span><b>${S.sound?'Enabled 🔊':'Muted 🔇'}</b></button>
-    <button class="btn lt" style="color:#C92A2A;text-align:left;display:flex;justify-content:space-between;padding:14px 20px" onclick="if(confirm('Erase all stars and progress on this device?')){localStorage.removeItem(K);location.reload()}"><span>Reset Child Progress</span><b>Reset</b></button>
-  </div>
-  ${sponsorHtml('parent')}`;
-}};
+home(){const d=dailyId(),lv=Math.round(Object.values(S.lv).reduce((a,b)=>a+b)/Object.keys(S.lv).length);
+const isNoticeOn = remote.noticeEnabled !== false && !!remote.announcement;
+const noticeMode = remote.noticeMode || 'both';
+const showBanner = isNoticeOn && (noticeMode === 'both' || noticeMode === 'banner');
+const noticeColor = remote.noticeColor || 'lemon';
+return`<div class="hd"><div><p class="sm">${new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</p><b style="font-size:22px">Hello, ${S.name}</b></div><div style="display:flex;gap:8px"><button class="ib" aria-label="Sound" onclick="S.sound=!S.sound;save();render()">${S.sound?'🔊':'🔇'}</button><button class="ib" aria-label="Streak" onclick="go('str')">${ic.flame}</button></div></div>
+<div class="card lilac" style="margin-top:20px"><span class="chip">Daily challenge</span><h2 class="disp" style="margin:14px 0 6px">${gameName(d)}</h2><p class="sm" style="color:var(--ink)">Double stars on your first game today.</p><button class="btn" style="margin-top:16px" onclick="startGame('${d}')">Play now</button></div>
+<div class="stats"><div class="card mint"><small>Stars</small><b>${S.stars}</b></div><div class="card peach"><small>Day streak</small><b>${streak()}</b></div><div class="card sky"><small>Brain level</small><b>${lv}</b></div></div>
+${sponsorHtml('home')}<h3 class="ttl">Pick a game</h3><div class="chips">${['all',...Object.keys(SK)].map(k=>`<button class="chip ${flt===k?'dk':''}" style="border:0;cursor:pointer;font-family:inherit;flex:none;padding:10px 16px" onclick="flt='${k}';render()">${k==='all'?'All':SK[k]}</button>`).join('')}</div><div class="bento">${gameOrder().filter(k=>gameEnabled(k)&&(flt==='all'||gameSkill(k)===flt)).map(k=>`<button class="card gc ${gcol(k)}" onclick="startGame('${k}')"><span class="chip">Level ${S.lv[k]||1}</span><div><b>${gameName(k)}</b><p class="sm" style="color:var(--ink);margin-top:4px">${gameDesc(k)}</p></div></button>`).join('')}</div>${showBanner?`<div class="card ${noticeColor}" style="margin-top:16px;border-radius:22px;padding:16px 20px;box-shadow:0 4px 16px rgba(0,0,0,0.03)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:16px">📢</span><b style="font-size:13px;text-transform:uppercase;letter-spacing:.04em;opacity:.85">Notice</b></div><p class="sm" style="color:var(--ink);font-weight:600;line-height:1.4">${clean(remote.announcement)}</p></div>`:''}`},
+wel(){return`<h1 class="disp" style="margin-top:36px">Welcome to Brain Playground</h1><p class="sm" style="margin-top:8px">What is your name?</p><input id="nm" maxlength="14" placeholder="Your name" aria-label="Your name"><button class="btn" style="width:100%" onclick="setName()">Start</button><button class="btn lt" style="width:100%;margin-top:10px" onclick="setName('Guest')">Play as Guest</button>`},
+str(){const w=Array.from({length:7},(_,i)=>new Date(Date.now()-(6-i)*864e5).toLocaleDateString('en-CA'));
+return`<div class="hd"><button class="ib" aria-label="Back" onclick="go('home')">${ic.back}</button></div><div class="card peach" style="margin-top:18px;text-align:center"><span class="chip">Day streak</span><div class="big">${streak()}</div><p class="sm" style="color:var(--ink)">Best: ${S.best} days</p></div><div class="seq" style="gap:6px">${w.map(d=>`<span style="min-width:0;flex:1;padding:12px 0;font-size:14px;${S.days.includes(d)?'background:var(--mint)':''}">${new Date(d).toLocaleDateString('en',{weekday:'narrow',timeZone:'UTC'})}</span>`).join('')}</div><h3 class="ttl">Milestones</h3>${R().ms.map(([n,x])=>{const c=S.claimed.includes(n),ok=streak()>=n;return`<div class="bad ${ok||c?'':'lock'}"><i></i><div style="flex:1"><b>${n} days · +${x} stars</b></div>${c?'<span class="chip">Claimed</span>':ok?`<button class="btn" style="min-height:40px;padding:8px 16px" onclick="claim(${n},${x})">Claim</button>`:''}</div>`}).join('')}${streak()?'':'<p class="sm">Play a game today to start a streak.</p>'}`},
+game(){return`<div class="hd"><button class="ib" aria-label="Back" onclick="go('home')">${ic.back}</button><div class="dots">${Array.from({length:g.N},(_,i)=>i).map(i=>`<i class="${i<g.r?'d':''}"></i>`).join('')}</div><span class="chip dk">Lv ${g.L}</span></div><h2 class="ttl" style="margin-bottom:0">${gameName(g.id)}</h2><p class="sm" style="margin-top:6px">${clean(gameInstructions(g.id))}</p>${(G[g.id]&&G[g.id].lg)?`<button class="chip dk" style="border:0;cursor:pointer;margin-top:10px;padding:10px 16px" onclick="cyc()">${LN[S.lang]}</button>`:''}<div id="body"></div><p id="msg"></p>`},
+res(){return`<div class="card ${gcol(g.id)}" style="margin-top:20px;text-align:center"><span class="chip">${gameName(g.id)}</span><div class="big">${g.ok}/${g.N}</div><p class="disp" style="font-size:26px">+${g.stars} stars</p><p class="sm" style="color:var(--ink);margin-top:8px">${g.note}</p>${g.nb.map(b=>`<p style="margin-top:10px"><span class="chip dk">New badge: ${b}</span></p>`).join('')}</div>${sponsorHtml('result')}<div style="display:grid;gap:12px;margin-top:18px"><button class="btn" onclick="startGame('${g.id}')">Play again</button><button class="btn lt" onclick="go('home')">Home</button></div>`},
+rew(){return`<h1 class="disp">Rewards</h1><div class="stats"><div class="card lemon"><small>Stars</small><b>${S.stars}</b></div><div class="card peach"><small>Streak</small><b>${streak()}</b></div><div class="card mint"><small>Badges</small><b>${S.badges.length}</b></div></div><h3 class="ttl">Badges</h3>${B.map((b,i)=>`<div class="bad ${S.badges.includes(b[0])?'':'lock'}"><i></i><div><b>${clean(remote.badges?.[i]?.name||b[0])}</b><p class="sm">${clean(remote.badges?.[i]?.desc||b[1])}</p></div></div>`).join('')}`},
+
+
+par(){if(!S.pin||pg.ch)return`<h1 class="disp">Set parent PIN</h1><p class="sm" style="margin-top:8px">Choose a 4-digit PIN. Recovery question: what is your favourite food?</p><div class="card white" style="margin-top:18px"><input id="p1" type="password" inputmode="numeric" maxlength="4" placeholder="4-digit PIN" aria-label="PIN"><input id="ra" placeholder="Recovery answer" aria-label="Recovery answer"><button class="btn" onclick="setPin()">Save PIN</button><p id="pe" class="sm" style="margin-top:10px;text-align:center"></p></div>`;
+if(!gate)return`<h1 class="disp">Parent corner</h1><p class="sm" style="margin-top:8px">${pg.fg?'Recovery question: what is your favourite food?':'Grown-ups only. Enter your PIN.'}</p><div class="card white" style="margin-top:18px"><input id="gi" ${pg.fg?'':'type="password" inputmode="numeric" maxlength="4"'} aria-label="Answer"><button class="btn" onclick="${pg.fg?'recover()':'tryPin()'}">Enter</button><p id="pe" class="sm" style="margin-top:10px;text-align:center"></p><p class="sm" style="text-align:center;margin-top:10px"><a href="#" onclick="pg.fg=!pg.fg;render();return false">${pg.fg?'Use PIN':'Forgot PIN?'}</a></p></div>`;
+const tips={r:'Spotting rules in number patterns builds logical thinking.',m:'Recalling sequences strengthens working memory.',a:'Missing-number puzzles build number sense and mental maths.',f:'Finding tiny differences trains attention and visual focus.',l:'Unscrambling words builds vocabulary and spelling.',s:'Flipping shapes in the mind builds spatial thinking.'};
+return`<h1 class="disp">Progress</h1>${sponsorHtml('parent')}<p class="sm" style="margin-top:8px">Each game is 5 short rounds. Difficulty adapts to your child, so it stays challenging but fair. No child account is required. Progress stays on this device; published cloud content is cached for offline use. Sponsor ads may appear when enabled by the administrator.</p><div class="card white" style="margin-top:14px;padding:14px 18px;border:1px solid #E3E3E8;border-radius:20px;"><b style="font-size:14px">Live Sync Status</b><p class="sm" style="margin-top:4px">${cloudReady()?'☁️ <b>Cloud Sync</b>: Connected to Supabase':'☁️ <b>Cloud Sync</b>: Not configured (Local / Offline)'}</p><p class="sm" style="margin-top:2px">${localSyncReady()?'⚡ <b>Local Dev Server</b>: Active (Live SSE on localhost:3001)':'⚡ <b>Local Dev Server</b>: Inactive (Running standalone)'}</p></div><h3 class="ttl">Brain skills</h3>${Object.keys(SK).map(k=>{const[o,t]=S.sk[k],p=t?Math.round(100*o/t):0;return`<b>${SK[k]} · ${p}%</b> <span class="sm">(${t} rounds)</span><div class="bar"><i style="width:${p}%"></i></div><p class="sm" style="margin:-8px 0 14px">${tips[k]}</p>`}).join('')}<div style="display:grid;gap:12px;margin-top:18px"><button class="btn lt" onclick="chName()">Change name</button><button class="btn lt" onclick="pg.ch=1;render()">Change PIN</button><button class="btn lt" onclick="S.sound=!S.sound;save();render()">Sound: ${S.sound?'on':'off'}</button><button class="btn lt" onclick="if(confirm('Erase all progress?')){localStorage.removeItem(K);location.reload()}">Reset progress</button></div>`}};
 function gameEnabled(id){return remote.games?.[id]?.enabled!==false}
 function gameInstructions(id){return remote.games?.[id]?.instructions||'Read carefully, then choose the best answer.'}
 function gameDifficulty(id){return remote.games?.[id]?.difficulty||'Adaptive'}
@@ -438,33 +245,14 @@ function remoteQuestions(id){const q=remote.games?.[id]?.questions;return Array.
 function customQuestion(){const list=remoteQuestions(g.id);if(!list.length)return false;let pool=list.filter(x=>!x.lang||x.lang===S.lang);if(!pool.length)pool=list;const eligible=pool.filter(x=>!x.level||Number(x.level)<=g.L);pool=eligible.length?eligible:pool;const q=pool[r(pool.length)];g.remoteQ=q;g.ans=String(q.answer);const os=q.options.map(String);const promptSub = q.instructions ? `<p class="sm" style="margin-top:8px;color:var(--ink2)">${clean(q.instructions)}</p>` : '';setBody(`<div class="card white" style="margin-top:16px;border:1px solid #E3E3E8;text-align:center;padding:26px 20px;border-radius:28px"><span class="chip dk" style="font-size:11px;padding:4px 12px;background:var(--peach);color:var(--ink);font-weight:800">${clean(gameDifficulty(g.id))}</span><p class="q" style="font-size:24px;font-weight:800;margin:16px 0 0;line-height:1.3">${clean(String(q.question))}</p>${promptSub}</div><div class="opts">${sh(os).map(v=>`<button class="o" data-v="${clean(String(v))}" onclick="pick(this,this.dataset.v)">${clean(String(v))}</button>`).join('')}</div>`);return true}
 function genericGameRound(){const numA=1+r(5*g.L),numB=1+r(5*g.L);const ans=numA+numB;setBody(`<div class="card white" style="margin-top:14px"><span class="chip">Level ${g.L}</span><p class="q">${numA} + ${numB} = ?</p></div>`+choices(ans,opts(ans)))}
 function sponsorList(slot){const a=remote.ads||{};if(a.enabled===false)return [];const today=new Date().toISOString().split('T')[0];return (Array.isArray(a.list)?a.list:[]).filter(x=>x.enabled!==false&&((x.slots||['home']).includes(slot))&&(!x.start||x.start<=today)&&(!x.end||x.end>=today))}
-function sponsorHtml(slot){const a=sponsorList(slot);if(!a.length)return '';const x=a[0];const letter=clean(x.logoLetter||(x.name?x.name[0].toUpperCase():'S'));const iconContent=(/^https:\/\//.test(x.logo||''))?`<img alt="" src="${clean(x.logo)}" style="width:100%;height:100%;object-fit:contain">`:(x.logoLetter?`<b style="font-size:22px;font-weight:800;color:var(--ink)">${letter}</b>`:`<svg viewBox="0 0 24 24" style="stroke:var(--ink);stroke-width:2.2;width:24px;height:24px;fill:none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`);return `<div style="margin:26px 0 10px"><span style="font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:8px">Sponsored Partner</span><a class="card white" style="display:flex;gap:16px;align-items:center;border:1px solid #E3E3E8;text-decoration:none;color:var(--ink);cursor:pointer;padding:16px 20px;border-radius:24px" ${(/^https:\/\//.test(x.url||'')?'role="link" tabindex="0" data-u="'+clean(x.url)+'" onclick="sponsorGo(this.dataset.u)"':'')}><div style="width:52px;height:52px;border-radius:18px;background:var(--peach);display:grid;place-items:center;flex:none;overflow:hidden">${iconContent}</div><div style="flex:1;min-width:0"><span class="chip" style="font-size:11px;padding:4px 10px;background:#EDEBF3;color:var(--ink2)">External Sponsor</span><b style="display:block;margin-top:6px;font-size:16px;letter-spacing:-.01em">${clean(x.name||'Sponsor')}</b><p class="sm" style="margin-top:2px;color:var(--ink2)">${clean(x.text||'')}</p></div></a></div>`}
+function sponsorHtml(slot){const a=sponsorList(slot);if(!a.length)return '';const x=a[0];const letter=clean(x.logoLetter||(x.name?x.name[0].toUpperCase():'S'));const iconContent=(/^https:\/\//.test(x.logo||''))?`<img alt="" src="${clean(x.logo)}" style="width:100%;height:100%;object-fit:contain">`:(x.logoLetter?`<b style="font-size:22px;font-weight:800;color:var(--ink)">${letter}</b>`:`<svg viewBox="0 0 24 24" style="stroke:var(--ink);stroke-width:2.2;width:24px;height:24px;fill:none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`);return `<a class="card white" style="display:flex;gap:16px;align-items:center;margin:16px 0;border:1px solid #E3E3E8;text-decoration:none;color:var(--ink);cursor:pointer;padding:16px 20px;border-radius:24px" ${(/^https:\/\//.test(x.url||'')?'role="link" tabindex="0" data-u="'+clean(x.url)+'" onclick="sponsorGo(this.dataset.u)"':'')}><div style="width:52px;height:52px;border-radius:18px;background:var(--peach);display:grid;place-items:center;flex:none;overflow:hidden">${iconContent}</div><div style="flex:1;min-width:0"><span class="chip" style="font-size:11px;padding:4px 10px;background:#EDEBF3;color:var(--ink2)">Sponsored</span><b style="display:block;margin-top:6px;font-size:16px;letter-spacing:-.01em">${clean(x.name||'Sponsor')}</b><p class="sm" style="margin-top:2px;color:var(--ink2)">${clean(x.text||'')}</p></div></a>`}
 function startGame(id){if(!gameEnabled(id))return;tok++;view='game';if(S.last!==D){S.streak=S.last===Y?S.streak+1:1;S.last=D}if(!S.days.includes(D))S.days=[...S.days,D].slice(-30);S.best=Math.max(S.best,S.streak);if(!S.lv[id])S.lv[id]=1;g={id,r:0,ok:0,L:lvFor(id),N:gRounds(id)};save();render();next()}
 function next(){tok++;g.pk=0;if(g.r>=g.N)return end();$('#v').innerHTML=V.game();if(customQuestion())return;const fn=DISP()[g.id];if(typeof fn==='function')fn();else genericGameRound()}
 function setBody(h){$('#body').innerHTML=h}
 function msg(t){const m=$('#msg');if(m)m.textContent=t}
 function opts(ans){const s=new Set([ans]);while(s.size<4){const v=ans+(r(9)-4);if(v>=0&&v!==ans)s.add(v)}return sh([...s])}
 function choices(ans,list){g.ans=ans;return`<div class="opts">${list.map(v=>`<button class="o" onclick="pick(this,${JSON.stringify(v).replace(/"/g,"'")})">${v}</button>`).join('')}</div>`}
-function pick(el,v){
-  g.pk=1;const all=el.parentNode.children;[...all].forEach(b=>b.disabled=true);const ok=v===g.ans;
-  el.classList.add(ok?'ok':'no');
-  if(!ok)[...all].forEach((b,i)=>{if(g.id==='s'?i===g.ans:b.textContent==g.ans&&g.id!=='o')b.classList.add('ok')});
-  const buddy=document.getElementById('buddy');
-  const buddyMsg=document.getElementById('buddy-msg');
-  if(buddy&&buddyMsg){
-    if(ok){
-      buddy.innerHTML='✨ <span id="buddy-msg">Brilliant job! +1 ⭐</span>';
-      buddy.style.background='var(--mint)';
-      buddy.style.transform='scale(1.05)';
-    }else{
-      buddy.innerHTML='💡 <span id="buddy-msg">Good try! Keep going!</span>';
-      buddy.style.background='var(--peach)';
-    }
-  }
-  msg(ok?'Yes! Great thinking.':'Not quite. Keep going.');
-  rec(ok);
-  after(next,1050);
-}
+function pick(el,v){g.pk=1;const all=el.parentNode.children;[...all].forEach(b=>b.disabled=true);const ok=v===g.ans;el.classList.add(ok?'ok':'no');if(!ok)[...all].forEach((b,i)=>{if(g.id==='s'?i===g.ans:b.textContent==g.ans&&g.id!=='o')b.classList.add('ok')});msg(ok?'Yes! Great thinking.':'Not quite. Keep going.');rec(ok);after(next,1000)}
 function rec(ok){g.r++;if(ok)g.ok++;const k=G[g.id].s;S.sk[k][1]++;if(ok)S.sk[k][0]++;ok?playSfx('correct'):playSfx('wrong')}
 function pat(){const L=g.L,t=Math.min(Math.ceil(L/2),5);let s=[],a=1+r(9);
 if(t==1){const d=2+r(4);for(let i=0;i<5;i++)s.push(a+d*i)}
