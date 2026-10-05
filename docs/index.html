@@ -1553,24 +1553,32 @@ const A = {
     updateUnpubBar();
     toast('Publishing changes…');
 
-    try {
-      // 1. Try local server API
-      const res = await fetch('/api/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(draftConfig)
-      });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.config) {
-          baseConfig = clone(json.config);
-          draftConfig = clone(json.config);
+    const isLocalHost = typeof window !== 'undefined' && window.location && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '[::1]');
+    let localSaved = false;
+
+    if (isLocalHost) {
+      try {
+        // 1. Try local server API when running locally
+        const res = await fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(draftConfig)
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.config) {
+            baseConfig = clone(json.config);
+            draftConfig = clone(json.config);
+            localSaved = true;
+          }
         }
-      } else {
-        throw new Error('Local save failed');
+      } catch (e) {
+        console.warn('Local save failed:', e);
       }
-    } catch (e) {
-      // Fallback in-memory
+    }
+
+    if (!localSaved) {
+      // In-memory or Cloud revision increment
       baseConfig = clone(draftConfig);
       baseConfig.rev = (baseConfig.rev || 0) + 1;
       const now = new Date();
@@ -1647,7 +1655,8 @@ async function initData() {
       console.warn('Could not load from Supabase Cloud:', e);
     }
   }
-  if (!loaded) {
+  const isLocalHost = typeof window !== 'undefined' && window.location && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '[::1]');
+  if (!loaded && isLocalHost) {
     try {
       const res = await fetch('/api/config');
       if (res.ok) {

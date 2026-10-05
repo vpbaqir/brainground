@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/app/src/main/assets/index.html" },
+    { "source": "/game", "destination": "/app/src/main/assets/index.html" },
+    { "source": "/admin", "destination": "/docs/index.html" },
+    { "source": "/privacy", "destination": "/docs/privacy.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ]
+}
