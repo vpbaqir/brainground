@@ -1,6 +1,6 @@
 {
-  "rev": 44,
-  "lastPublished": "5 Oct 2026, 20:33",
+  "rev": 47,
+  "lastPublished": "5 Oct 2026, 21:09",
   "announcement": "⚡ Brain Tip: Read carefully and look for hidden patterns before tapping!",
   "ads": {
     "enabled": true,
@@ -28,7 +28,10 @@
         {
           "q": "What comes next?"
         }
-      ]
+      ],
+      "desc": "Reasoning DSFG",
+      "skill": "r",
+      "color": "lilac"
     },
     "e": {
       "name": "Echo",
