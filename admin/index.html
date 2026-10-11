@@ -490,6 +490,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/api/runtime-config"></script>
 <script>
 let SB = { url: '', anon: '' };
 let isDemoMode = true;
@@ -498,8 +499,9 @@ let sbUser = null;
 
 function initSupabaseClient() {
   const customSbConf = JSON.parse(localStorage.getItem('bp_custom_sb') || '{}');
-  SB.url = customSbConf.url || 'YOUR_SUPABASE_URL';
-  SB.anon = customSbConf.anon || 'YOUR_SUPABASE_ANON_KEY';
+  const runtimeSb = window.BP_RUNTIME_CONFIG || {};
+  SB.url = customSbConf.url || runtimeSb.supabaseUrl || 'YOUR_SUPABASE_URL';
+  SB.anon = customSbConf.anon || runtimeSb.supabaseAnonKey || 'YOUR_SUPABASE_ANON_KEY';
   isDemoMode = !SB.url.startsWith('https://') || SB.anon === 'YOUR_SUPABASE_ANON_KEY';
   sb = null;
   sbUser = null;

@@ -76,12 +76,13 @@ svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-l
 <div id="modal-host"></div>
 <nav id="nav"></nav>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/api/runtime-config"></script>
 <script>
 const $=s=>document.querySelector(s),K='brainplay1';
 const customSavedSb = JSON.parse(localStorage.getItem('bp_custom_sb') || '{}');
 const BP_SUPABASE={
-  url: customSavedSb.url || 'YOUR_SUPABASE_URL',
-  anon: customSavedSb.anon || 'YOUR_SUPABASE_ANON_KEY'
+  url: customSavedSb.url || (window.BP_RUNTIME_CONFIG && window.BP_RUNTIME_CONFIG.supabaseUrl) || 'YOUR_SUPABASE_URL',
+  anon: customSavedSb.anon || (window.BP_RUNTIME_CONFIG && window.BP_RUNTIME_CONFIG.supabaseAnonKey) || 'YOUR_SUPABASE_ANON_KEY'
 };
 let cloud=null,remote={announcement:'',games:{},ads:{enabled:true,list:[]}},adminUser=null,cloudTimer=null,adConfig={enabled:false,unitId:'',testMode:true};
 function cloudReady(){return BP_SUPABASE.url.startsWith('https://')&&!!BP_SUPABASE.anon&&BP_SUPABASE.anon!=='YOUR_SUPABASE_ANON_KEY'}
